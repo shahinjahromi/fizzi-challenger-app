@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "buildCommand": "cd server && npx prisma generate && cd .. && npm run build",
+  "outputDirectory": "client/dist/client/browser",
+  "installCommand": "npm install",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "framework": null
+}

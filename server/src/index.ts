@@ -54,9 +54,12 @@ app.use((_req, res) => res.status(404).json({ error: 'Not found', code: 'NOT_FOU
 
 app.use(errorHandler)
 
-app.listen(env.PORT, () => {
-  console.log(`Server running on http://localhost:${env.PORT}`)
-  console.log(`Environment: ${env.NODE_ENV}`)
-})
+// Only listen when not on Vercel (serverless handles requests via api/index)
+if (!process.env.VERCEL) {
+  app.listen(env.PORT, () => {
+    console.log(`Server running on http://localhost:${env.PORT}`)
+    console.log(`Environment: ${env.NODE_ENV}`)
+  })
+}
 
 export default app
