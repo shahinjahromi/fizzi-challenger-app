@@ -1,5 +1,5 @@
-// No dotenv import - DATABASE_URL must be in the environment (Render sets it; locally export or use .env in your shell)
-export default {
+// DATABASE_URL must be set in the environment (Render sets it; locally use .env or export)
+module.exports = {
   schema: 'prisma/schema.prisma',
   migrations: {
     path: 'prisma/migrations',
