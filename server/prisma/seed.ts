@@ -1,7 +1,24 @@
-import { PrismaClient, UserRole, WorkspaceRole, AccountType, TransactionDirection, TransactionType, TransactionStatus, LimitSubjectType } from '@prisma/client'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import dotenv from 'dotenv'
+
+// Load server/.env so STRIPE_SECRET_KEY and DATABASE_URL are set regardless of cwd
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const serverEnv = path.resolve(__dirname, '..', '.env')
+dotenv.config({ path: serverEnv })
+if (!process.env.DATABASE_URL) dotenv.config({ path: path.resolve(process.cwd(), 'server', '.env') })
+if (!process.env.DATABASE_URL) dotenv.config({ path: path.resolve(process.cwd(), '.env') })
+
+import { PrismaClient, UserRole, WorkspaceRole, AccountType, TransactionDirection, TransactionType, TransactionStatus, LimitSubjectType, ExternalAccountType } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import pg from 'pg'
 import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient()
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) throw new Error('DATABASE_URL is not set')
+const pool = new pg.Pool({ connectionString })
+const adapter = new PrismaPg(pool)
+const prisma = new PrismaClient({ adapter })
 
 function addDays(date: Date, days: number): Date {
   const result = new Date(date)
@@ -257,6 +274,47 @@ async function main() {
     },
   })
 
+  // ─── Stripe Connect: one external account per workspace (requires STRIPE_SECRET_KEY in server/.env) ───
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.log('  Stripe Connect skipped (set STRIPE_SECRET_KEY in server/.env to link external accounts)')
+  } else {
+    try {
+      const { isStripeConfigured, createConnectExpressAccount, addBankAccountToConnectedAccount } = await import('../src/services/stripeService')
+      if (isStripeConfigured()) {
+        for (const workspace of [acmeCorp, globalVentures]) {
+          const existing = await prisma.externalAccount.findFirst({ where: { workspaceId: workspace.id, stripeDestinationId: { not: null } } })
+          if (existing) {
+            console.log(`  Stripe Connect already linked for workspace ${workspace.name}, skipping`)
+            continue
+          }
+          const account = await createConnectExpressAccount({
+            workspaceName: workspace.name,
+            email: `demo-${workspace.id}@sixert-demo.test`,
+          })
+          await addBankAccountToConnectedAccount(account.id, { accountHolderName: `${workspace.name} (demo)` })
+          await prisma.workspace.update({
+            where: { id: workspace.id },
+            data: { stripeConnectedAccountId: account.id },
+          })
+          await prisma.externalAccount.create({
+            data: {
+              workspaceId: workspace.id,
+              nickname: `${workspace.name} → Stripe (demo)`,
+              type: ExternalAccountType.CHECKING,
+              maskedNumber: '••••6789',
+              routingNumber: '110000000',
+              stripeDestinationId: account.id,
+              isVerified: true,
+            },
+          })
+          console.log(`  Linked Stripe Connect for ${workspace.name} (${account.id})`)
+        }
+      }
+    } catch (e) {
+      console.warn('  Stripe Connect seed skipped:', e instanceof Error ? e.message : e)
+    }
+  }
+
   // ─── Limit Assignments ────────────────────────────────────────────────────
 
   // Carol gets elevated tier
@@ -379,6 +437,9 @@ async function main() {
   console.log('  Users: alice, bob, carol, dave (password: demo1234)')
   console.log('  Workspaces: Acme Corp, Global Ventures')
   console.log('  Limit tiers: new-tenure, standard-90plus, elevated, restricted')
+  if (process.env.STRIPE_SECRET_KEY) {
+    console.log('  External transfers: Stripe Connect linked; view transfers in Stripe Dashboard → Connect → Transfers')
+  }
 }
 
 main()

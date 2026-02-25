@@ -1,4 +1,9 @@
-// DATABASE_URL must be set in the environment (Render sets it; locally use .env or export)
+// Load .env from server dir so DATABASE_URL is set when Prisma runs (e.g. migrate deploy)
+const path = require('path')
+try {
+  require('dotenv').config({ path: path.resolve(__dirname, '.env') })
+} catch (_) {}
+
 module.exports = {
   schema: 'prisma/schema.prisma',
   migrations: {

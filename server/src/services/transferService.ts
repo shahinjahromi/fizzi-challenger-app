@@ -3,7 +3,12 @@ import { ForbiddenError, NotFoundError, ValidationError } from '../utils/errors'
 import { TransactionDirection, TransactionType, TransactionStatus } from '@prisma/client'
 import { enforceLimits } from './limitService'
 import { isCutoffPassed } from '../utils/dateUtils'
-import { isStripeConfigured, createPayout } from './stripeService'
+import {
+  isStripeConfigured,
+  isStripeConnectedAccountId,
+  createPayout,
+  createTransferToConnectedAccount,
+} from './stripeService'
 
 interface InternalTransferBody {
   fromAccountId: string
@@ -148,13 +153,30 @@ export async function initiateAchTransfer(userId: string, body: AchTransferBody)
     })
   }
 
-  // Fire Stripe payout for outbound ACH (Sixert → external bank) when configured
+  // Stripe: outbound ACH (Sixert → external) — Transfer to Connect account or Payout to bank
   if (
     txnDirection === TransactionDirection.DEBIT &&
     isStripeConfigured() &&
     externalAccount.stripeDestinationId
   ) {
     try {
+      if (isStripeConnectedAccountId(externalAccount.stripeDestinationId)) {
+        const transfer = await createTransferToConnectedAccount({
+          destinationConnectedAccountId: externalAccount.stripeDestinationId,
+          amountCents,
+          description: description ?? `Sixert → external (${externalAccount.nickname ?? 'external account'})`,
+          metadata: {
+            sixert_account_id: accountId,
+            sixert_external_account_id: externalAccountId,
+          },
+        })
+        return {
+          txn,
+          stripePayoutId: transfer.id,
+          stripePayoutStatus: transfer.reversed === true ? 'reversed' : 'paid',
+          note: `Transfer submitted via Stripe Connect (transfer ${transfer.id}). View in Stripe Dashboard → Connect → Transfers.`,
+        }
+      }
       const payout = await createPayout({
         amountCents,
         destinationBankAccountId: externalAccount.stripeDestinationId,
@@ -168,12 +190,11 @@ export async function initiateAchTransfer(userId: string, body: AchTransferBody)
         note: `Transfer submitted via Stripe (payout ${payout.id}, ${payout.status})`,
       }
     } catch (stripeErr) {
-      // Refund available balance on Stripe failure
       await prisma.account.update({
         where: { id: accountId },
         data: { availableCents: { increment: amountCents } },
       })
-      const message = stripeErr instanceof Error ? stripeErr.message : 'Stripe payout failed'
+      const message = stripeErr instanceof Error ? stripeErr.message : 'Stripe transfer failed'
       throw new ValidationError(`External transfer failed: ${message}`)
     }
   }

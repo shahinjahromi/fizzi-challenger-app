@@ -91,6 +91,28 @@ import { ExternalAccountsService, ExternalAccount } from '../../core/api/externa
         </form>
       </section>
 
+      <!-- Internal transfer confirmation modal -->
+      @if (showInternalConfirm) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" (click)="cancelInternalConfirm()" role="dialog" aria-labelledby="internal-confirm-title">
+          <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4" (click)="$event.stopPropagation()">
+            <h3 id="internal-confirm-title" class="text-lg font-semibold text-gray-900">Confirm internal transfer</h3>
+            <p class="text-sm text-gray-600">Please review the details below.</p>
+            <dl class="space-y-2 text-sm">
+              <div class="flex justify-between"><dt class="text-gray-500">From</dt><dd class="font-medium">{{ internalConfirmSummary.fromName }}</dd></div>
+              <div class="flex justify-between"><dt class="text-gray-500">To</dt><dd class="font-medium">{{ internalConfirmSummary.toName }}</dd></div>
+              <div class="flex justify-between"><dt class="text-gray-500">Amount</dt><dd class="font-medium">{{ internalConfirmSummary.amountFormatted }}</dd></div>
+              @if (internalConfirmSummary.description) {
+                <div class="flex justify-between"><dt class="text-gray-500">Memo</dt><dd class="font-medium">{{ internalConfirmSummary.description }}</dd></div>
+              }
+            </dl>
+            <div class="flex gap-3 pt-2">
+              <button type="button" (click)="cancelInternalConfirm()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">Cancel</button>
+              <button type="button" (click)="confirmInternalTransfer()" [disabled]="internalSubmitting" class="flex-1 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50">{{ internalSubmitting ? 'Transferring…' : 'Confirm transfer' }}</button>
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- External: to an external bank account (ACH / Stripe) -->
       <section class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-1">Transfer to external bank</h3>
@@ -99,9 +121,22 @@ import { ExternalAccountsService, ExternalAccount } from '../../core/api/externa
         </p>
 
         @if (externalAccounts.length === 0 && !loadingExternal) {
-          <p class="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-            No external accounts linked yet. Link an external account (e.g. via Stripe) to enable transfers.
-          </p>
+          <div class="space-y-3">
+            <p class="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+              No external accounts linked yet. Link a Stripe Connect account to move money from your Sixert account to an external destination (visible in your Stripe Dashboard).
+            </p>
+            @if (linkError) {
+              <p class="text-sm text-red-600">{{ linkError }}</p>
+            }
+            <button
+              type="button"
+              (click)="linkExternalAccount()"
+              [disabled]="!workspaceId || linkingExternal"
+              class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ linkingExternal ? 'Linking…' : 'Link Stripe external account' }}
+            </button>
+          </div>
         } @else {
           <form (ngSubmit)="submitExternal()" class="space-y-4 max-w-md">
             <div>
@@ -172,6 +207,26 @@ import { ExternalAccountsService, ExternalAccount } from '../../core/api/externa
           </form>
         }
       </section>
+
+      <!-- External transfer confirmation modal -->
+      @if (showExternalConfirm) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" (click)="cancelExternalConfirm()" role="dialog" aria-labelledby="external-confirm-title">
+          <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4" (click)="$event.stopPropagation()">
+            <h3 id="external-confirm-title" class="text-lg font-semibold text-gray-900">Confirm external transfer</h3>
+            <p class="text-sm text-gray-600">Please review the details below.</p>
+            <dl class="space-y-2 text-sm">
+              <div class="flex justify-between"><dt class="text-gray-500">Sixert account</dt><dd class="font-medium">{{ externalConfirmSummary.accountName }}</dd></div>
+              <div class="flex justify-between"><dt class="text-gray-500">Direction</dt><dd class="font-medium">{{ externalConfirmSummary.directionLabel }}</dd></div>
+              <div class="flex justify-between"><dt class="text-gray-500">External account</dt><dd class="font-medium">{{ externalConfirmSummary.externalName }}</dd></div>
+              <div class="flex justify-between"><dt class="text-gray-500">Amount</dt><dd class="font-medium">{{ externalConfirmSummary.amountFormatted }}</dd></div>
+            </dl>
+            <div class="flex gap-3 pt-2">
+              <button type="button" (click)="cancelExternalConfirm()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">Cancel</button>
+              <button type="button" (click)="confirmExternalTransfer()" [disabled]="externalSubmitting" class="flex-1 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50">{{ externalSubmitting ? 'Submitting…' : 'Confirm transfer' }}</button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
 })
@@ -186,6 +241,8 @@ export class TransfersComponent implements OnInit {
   accounts: Account[] = [];
   externalAccounts: ExternalAccount[] = [];
   loadingExternal = false;
+  linkingExternal = false;
+  linkError: string | null = null;
 
   internal = {
     fromAccountId: '',
@@ -196,6 +253,8 @@ export class TransfersComponent implements OnInit {
   internalSubmitting = false;
   internalError: string | null = null;
   internalSuccess: string | null = null;
+  showInternalConfirm = false;
+  internalConfirmSummary: { fromName: string; toName: string; amountFormatted: string; description: string } = { fromName: '', toName: '', amountFormatted: '', description: '' };
 
   external = {
     accountId: '',
@@ -206,6 +265,8 @@ export class TransfersComponent implements OnInit {
   externalSubmitting = false;
   externalError: string | null = null;
   externalSuccess: string | null = null;
+  showExternalConfirm = false;
+  externalConfirmSummary: { accountName: string; directionLabel: string; externalName: string; amountFormatted: string } = { accountName: '', directionLabel: '', externalName: '', amountFormatted: '' };
 
   formatCents(cents: number): string {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
@@ -223,15 +284,36 @@ export class TransfersComponent implements OnInit {
           next: (acc) => (this.accounts = acc),
           error: () => (this.accounts = []),
         });
-        this.loadingExternal = true;
-        this.externalAccountsApi.list(workspaces[0].id).subscribe({
-          next: (ext) => (this.externalAccounts = ext),
-          error: () => (this.externalAccounts = []),
-          complete: () => (this.loadingExternal = false),
-        });
+        this.loadExternalAccounts(workspaces[0].id);
       },
       error: (err) => (this.workspaceError = err?.error?.message ?? 'Failed to load workspaces.'),
     });
+  }
+
+  private loadExternalAccounts(workspaceId: string): void {
+    this.loadingExternal = true;
+    this.linkError = null;
+    this.externalAccountsApi.list(workspaceId).subscribe({
+      next: (ext) => (this.externalAccounts = ext),
+      error: () => (this.externalAccounts = []),
+      complete: () => (this.loadingExternal = false),
+    });
+  }
+
+  linkExternalAccount(): void {
+    if (!this.workspaceId) return
+    this.linkingExternal = true
+    this.linkError = null
+    this.externalAccountsApi.linkStripeConnect(this.workspaceId).subscribe({
+      next: () => {
+        this.linkingExternal = false
+        this.loadExternalAccounts(this.workspaceId!)
+      },
+      error: (err) => {
+        this.linkingExternal = false
+        this.linkError = err?.error?.message ?? err?.error?.error ?? 'Failed to link external account.'
+      },
+    })
   }
 
   submitInternal(): void {
@@ -242,6 +324,24 @@ export class TransfersComponent implements OnInit {
       this.internalError = 'Please select from, to, and a positive amount.';
       return;
     }
+    const from = this.accounts.find((a) => a.id === this.internal.fromAccountId);
+    const to = this.accounts.find((a) => a.id === this.internal.toAccountId);
+    this.internalConfirmSummary = {
+      fromName: from?.name ?? 'Unknown',
+      toName: to?.name ?? 'Unknown',
+      amountFormatted: this.formatCents(amountCents),
+      description: this.internal.description || '',
+    };
+    this.showInternalConfirm = true;
+  }
+
+  cancelInternalConfirm(): void {
+    this.showInternalConfirm = false;
+  }
+
+  confirmInternalTransfer(): void {
+    const amountCents = this.internal.amountDollars != null ? Math.round(this.internal.amountDollars * 100) : 0;
+    if (amountCents <= 0 || !this.internal.fromAccountId || !this.internal.toAccountId) return;
     this.internalSubmitting = true;
     this.transfersApi
       .initiateInternal({
@@ -256,6 +356,7 @@ export class TransfersComponent implements OnInit {
           this.internal.amountDollars = null;
           this.internal.description = '';
           this.internalSubmitting = false;
+          this.showInternalConfirm = false;
           this.accountsApi.getWorkspaceAccounts(this.workspaceId!).subscribe((acc) => (this.accounts = acc));
         },
         error: (err) => {
@@ -273,6 +374,24 @@ export class TransfersComponent implements OnInit {
       this.externalError = 'Please select account, external account, and a positive amount.';
       return;
     }
+    const account = this.accounts.find((a) => a.id === this.external.accountId);
+    const ext = this.externalAccounts.find((e) => e.id === this.external.externalAccountId);
+    this.externalConfirmSummary = {
+      accountName: account?.name ?? 'Unknown',
+      directionLabel: this.external.direction === 'DEBIT' ? 'From Sixert → To external bank' : 'From external bank → To Sixert',
+      externalName: ext ? (ext.nickname || ext.maskedNumber || 'External account') : 'Unknown',
+      amountFormatted: this.formatCents(amountCents),
+    };
+    this.showExternalConfirm = true;
+  }
+
+  cancelExternalConfirm(): void {
+    this.showExternalConfirm = false;
+  }
+
+  confirmExternalTransfer(): void {
+    const amountCents = this.external.amountDollars != null ? Math.round(this.external.amountDollars * 100) : 0;
+    if (amountCents <= 0 || !this.external.accountId || !this.external.externalAccountId) return;
     this.externalSubmitting = true;
     this.transfersApi
       .initiateAch({
@@ -286,6 +405,7 @@ export class TransfersComponent implements OnInit {
           this.externalSuccess = res.note ?? 'Transfer submitted.';
           this.external.amountDollars = null;
           this.externalSubmitting = false;
+          this.showExternalConfirm = false;
           this.accountsApi.getWorkspaceAccounts(this.workspaceId!).subscribe((acc) => (this.accounts = acc));
         },
         error: (err) => {
