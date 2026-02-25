@@ -1,0 +1,264 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum UserStanding {
+  GOOD
+  REVIEW
+  SUSPENDED
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  MONEY_MARKET
+}
+
+enum TransactionDirection {
+  CREDIT
+  DEBIT
+}
+
+enum TransactionType {
+  INTERNAL_TRANSFER
+  ACH_CREDIT
+  ACH_DEBIT
+  FEE
+  INTEREST
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  HOLD
+  POSTED
+  RETURNED
+  CANCELLED
+}
+
+enum ExternalAccountType {
+  CHECKING
+  SAVINGS
+}
+
+enum LimitSubjectType {
+  USER
+  ACCOUNT
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                    String       @id @default(cuid())
+  username              String       @unique
+  email                 String       @unique
+  passwordHash          String
+  firstName             String
+  lastName              String
+  role                  UserRole     @default(USER)
+  tenureStartDate       DateTime     @default(now())
+  standing              UserStanding @default(GOOD)
+  nymbusAccountId       String?
+  nymbusLedgerId        String?
+  businessAddressLine1 String?
+  businessAddressLine2 String?
+  businessCity         String?
+  businessState        String?
+  businessPostalCode   String?
+  businessCountry      String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  workspaceMemberships WorkspaceMembership[]
+  refreshTokens        RefreshToken[]
+  limitAssignments     LimitAssignment[]     @relation("AssignedToUser")
+  assignedByMe         LimitAssignment[]     @relation("AssignedByUser")
+  messages             Message[]
+  achConsents          AchConsent[]
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships      WorkspaceMembership[]
+  accounts         Account[]
+  externalAccounts ExternalAccount[]
+  messages         Message[]
+}
+
+model WorkspaceMembership {
+  id          String        @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        WorkspaceRole @default(MEMBER)
+  createdAt   DateTime      @default(now())
+
+  user      User      @relation(fields: [userId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([userId, workspaceId])
+}
+
+model Account {
+  id              String      @id @default(cuid())
+  workspaceId     String
+  name            String
+  type            AccountType @default(CHECKING)
+  accountNumber   String      @unique
+  routingNumber   String
+  availableCents  Int         @default(0)
+  currentCents    Int         @default(0)
+  isClosed        Boolean     @default(false)
+  interestRate    Float       @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  workspace        Workspace         @relation(fields: [workspaceId], references: [id])
+  transactions     Transaction[]
+  statements       Statement[]
+  limitAssignments LimitAssignment[] @relation("AssignedToAccount")
+}
+
+model Transaction {
+  id             String               @id @default(cuid())
+  accountId      String
+  direction      TransactionDirection
+  type           TransactionType
+  status         TransactionStatus    @default(PENDING)
+  amountCents    Int
+  description    String?
+  limitTierId    String?
+  limitSnapshot  Json?
+  relatedTxnId   String?
+  postedAt       DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  account    Account      @relation(fields: [accountId], references: [id])
+  limitTier  LimitTier?   @relation(fields: [limitTierId], references: [id])
+}
+
+model ExternalAccount {
+  id                   String              @id @default(cuid())
+  workspaceId          String
+  nickname             String?
+  type                 ExternalAccountType @default(CHECKING)
+  maskedNumber         String
+  routingNumber        String
+  finicityAccountId    String?
+  stripeDestinationId  String?
+  isVerified           Boolean             @default(false)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
+  achConsents AchConsent[]
+}
+
+model Statement {
+  id        String   @id @default(cuid())
+  accountId String
+  month     Int
+  year      Int
+  pdfUrl    String?
+  createdAt DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@unique([accountId, month, year])
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  threadId    String
+  workspaceId String
+  authorId    String
+  subject     String
+  body        String
+  isRead      Boolean   @default(false)
+  isDraft     Boolean   @default(false)
+  sentAt      DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  author    User      @relation(fields: [authorId], references: [id])
+}
+
+model AchConsent {
+  id                String   @id @default(cuid())
+  userId            String
+  externalAccountId String
+  ipAddress         String
+  artifacts         Json
+  createdAt         DateTime @default(now())
+
+  user            User            @relation(fields: [userId], references: [id])
+  externalAccount ExternalAccount @relation(fields: [externalAccountId], references: [id])
+}
+
+model LimitTier {
+  id                      String @id @default(cuid())
+  name                    String @unique
+  displayName             String
+  perTxnMaxCents          Int
+  dailyCreditMaxCents     Int
+  dailyDebitMaxCents      Int
+  monthlyCreditMaxCents   Int
+  monthlyDebitMaxCents    Int
+  velocityCount           Int
+  velocityWindowMinutes   Int
+  sameDayAchMaxCents      Int
+
+  assignments  LimitAssignment[]
+  transactions Transaction[]
+}
+
+model LimitAssignment {
+  id             String           @id @default(cuid())
+  subjectType    LimitSubjectType
+  userId         String?
+  accountId      String?
+  tierId         String
+  effectiveFrom  DateTime         @default(now())
+  effectiveTo    DateTime?
+  overrideReason String?
+  assignedBy     String?
+  createdAt      DateTime         @default(now())
+
+  user      User?      @relation("AssignedToUser", fields: [userId], references: [id])
+  account   Account?   @relation("AssignedToAccount", fields: [accountId], references: [id])
+  tier      LimitTier  @relation(fields: [tierId], references: [id])
+  assigner  User?      @relation("AssignedByUser", fields: [assignedBy], references: [id])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
