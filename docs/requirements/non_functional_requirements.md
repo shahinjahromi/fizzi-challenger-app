@@ -30,5 +30,10 @@
 - **NFR-019**: The web application must meet WCAG 2.1 AA requirements.
 - **NFR-020**: Reskinned components and critical flows must be keyboard accessible and include appropriate ARIA roles.
 
-## Maintainability
+## Maintainability and architecture
 - **NFR-021**: Requirements and outputs must remain deterministic and diff-friendly for version control, avoiding unnecessary churn.
+- **NFR-022**: Code changes must preserve the Single Responsibility Principle: each module/service/class should have one primary responsibility and a single clear reason to change.
+- **NFR-023**: Code changes must preserve the Open/Closed Principle: components should be extensible via configuration, composition, or adding new implementations, without modifying stable core logic.
+- **NFR-024**: Public APIs and domain abstractions must preserve the Liskov Substitution Principle: any implementation of an interface/abstract type must be safely substitutable without surprising side effects.
+- **NFR-025**: Service and module interfaces must preserve the Interface Segregation Principle: avoid “fat” interfaces and prefer smaller, role-specific interfaces so callers do not depend on unused methods.
+- **NFR-026**: Code changes must preserve the Dependency Inversion Principle: depend on abstractions, not concrete implementations, and inject infrastructure (databases, bank-core providers, notification providers) behind stable interfaces.
