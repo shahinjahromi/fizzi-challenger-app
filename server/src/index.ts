@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import express from 'express'
+import express, { type Request, type Response } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -45,12 +45,16 @@ app.use('/api/workspaces', workspacesRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/external-accounts', externalAccountsRoutes)
 
-app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }))
+app.get('/health', (_req: Request, res: Response) =>
+  res.json({ status: 'ok', timestamp: new Date().toISOString() }),
+)
 
-app.get('/', (_req, res) => res.redirect(302, env.CLIENT_URL))
+app.get('/', (_req: Request, res: Response) => res.redirect(302, env.CLIENT_URL))
 
 // 404 for any unmatched route (so API returns JSON, not HTML)
-app.use((_req, res) => res.status(404).json({ error: 'Not found', code: 'NOT_FOUND' }))
+app.use((_req: Request, res: Response) =>
+  res.status(404).json({ error: 'Not found', code: 'NOT_FOUND' }),
+)
 
 app.use(errorHandler)
 
