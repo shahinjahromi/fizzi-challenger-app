@@ -60,8 +60,10 @@ app.use(errorHandler)
 
 // Only listen when not on Vercel (serverless handles requests via api/index)
 if (!process.env.VERCEL) {
-  app.listen(env.PORT, () => {
-    console.log(`Server running on http://localhost:${env.PORT}`)
+  // Render expects you to bind to process.env.PORT on 0.0.0.0
+  const port = env.PORT
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${port}`)
     console.log(`Environment: ${env.NODE_ENV}`)
   })
 }
