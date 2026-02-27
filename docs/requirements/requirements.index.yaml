@@ -1,0 +1,15 @@
+schema_version: 1.0
+project:
+  name: Sixert Banking App
+  slug: sixert_bank
+outputs:
+  business_context: docs/requirements/business_context.md
+  functional_requirements: docs/requirements/functional_requirements.md
+  non_functional_requirements: docs/requirements/non_functional_requirements.md
+  data_contracts: docs/requirements/data_contracts.md
+  api_contracts: docs/requirements/api_contracts.md
+  ui_contracts: docs/requirements/ui_contracts.md
+  acceptance_tests: docs/requirements/acceptance_tests.md
+  decisions: docs/requirements/decisions.md
+  glossary: docs/requirements/glossary.md
+  change_log: docs/requirements/change_log.md
