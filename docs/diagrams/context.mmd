@@ -1,0 +1,8 @@
+```mermaid
+graph TD
+	U["User"] --> C["Angular Client"]
+	C -->|HTTPS| API["Express API"]
+	API --> DB["Postgres (Prisma)"]
+	API --> Stripe["Stripe (payouts)"]
+	API --> Nymbus["Nymbus (provisioning)"]
+```

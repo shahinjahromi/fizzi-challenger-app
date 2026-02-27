@@ -15,6 +15,7 @@ interface InternalTransferBody {
   toAccountId: string
   amountCents: number
   description?: string
+  requestedExecutionDate?: string
 }
 
 interface AchTransferBody {
@@ -24,6 +25,18 @@ interface AchTransferBody {
   amountCents: number
   sameDayAch?: boolean
   description?: string
+  isConsumerDebit?: boolean
+  consentId?: string
+}
+
+function nextBusinessDay(from: Date) {
+  const d = new Date(from)
+  // weekend-only. Holiday calendars can be added later.
+  do {
+    d.setDate(d.getDate() + 1)
+  } while (d.getDay() === 0 || d.getDay() === 6)
+  d.setHours(0, 0, 0, 0)
+  return d
 }
 
 export async function initiateInternalTransfer(userId: string, body: InternalTransferBody) {
@@ -38,7 +51,6 @@ export async function initiateInternalTransfer(userId: string, body: InternalTra
   const toAccount = await prisma.account.findUnique({ where: { id: toAccountId } })
   if (!toAccount || toAccount.isClosed) throw new NotFoundError('Destination account')
 
-  // Verify user is member of both workspaces
   const fromMembership = await prisma.workspaceMembership.findUnique({
     where: { userId_workspaceId: { userId, workspaceId: fromAccount.workspaceId } },
   })
@@ -55,18 +67,22 @@ export async function initiateInternalTransfer(userId: string, body: InternalTra
 
   const tier = await enforceLimits(fromAccountId, userId, amountCents, TransactionDirection.DEBIT)
 
+  const cutoffPassed = isCutoffPassed(new Date())
+  const effectiveDate = cutoffPassed ? nextBusinessDay(new Date()) : new Date()
+  const status = cutoffPassed ? TransactionStatus.PENDING : TransactionStatus.POSTED
+
   const [debitTxn, creditTxn] = await prisma.$transaction([
     prisma.transaction.create({
       data: {
         accountId: fromAccountId,
         direction: TransactionDirection.DEBIT,
         type: TransactionType.INTERNAL_TRANSFER,
-        status: TransactionStatus.POSTED,
+        status,
         amountCents,
         description: description ?? 'Internal transfer',
         limitTierId: tier.id,
         limitSnapshot: tier,
-        postedAt: new Date(),
+        postedAt: status === TransactionStatus.POSTED ? new Date() : null,
       },
     }),
     prisma.transaction.create({
@@ -74,37 +90,47 @@ export async function initiateInternalTransfer(userId: string, body: InternalTra
         accountId: toAccountId,
         direction: TransactionDirection.CREDIT,
         type: TransactionType.INTERNAL_TRANSFER,
-        status: TransactionStatus.POSTED,
+        status,
         amountCents,
         description: description ?? 'Internal transfer',
         limitTierId: tier.id,
         limitSnapshot: tier,
-        postedAt: new Date(),
+        postedAt: status === TransactionStatus.POSTED ? new Date() : null,
       },
     }),
     prisma.account.update({
       where: { id: fromAccountId },
       data: {
         availableCents: { decrement: amountCents },
-        currentCents: { decrement: amountCents },
+        currentCents: status === TransactionStatus.POSTED ? { decrement: amountCents } : undefined,
       },
     }),
     prisma.account.update({
       where: { id: toAccountId },
       data: {
         availableCents: { increment: amountCents },
-        currentCents: { increment: amountCents },
+        currentCents: status === TransactionStatus.POSTED ? { increment: amountCents } : undefined,
       },
     }),
   ])
 
-  return { debitTxn, creditTxn }
+  return {
+    debitTxn,
+    creditTxn,
+    referenceId: debitTxn.id,
+    effectiveDate: effectiveDate.toISOString(),
+    status,
+  }
 }
 
 export async function initiateAchTransfer(userId: string, body: AchTransferBody) {
-  const { accountId, externalAccountId, direction, amountCents, sameDayAch, description } = body
+  const { accountId, externalAccountId, direction, amountCents, sameDayAch, description, isConsumerDebit, consentId } = body
 
   if (amountCents <= 0) throw new ValidationError('Amount must be positive')
+
+  if (isConsumerDebit === true && (!consentId || String(consentId).trim().length === 0)) {
+    throw new ValidationError('Consent is required for consumer debit ACH')
+  }
 
   const account = await prisma.account.findUnique({ where: { id: accountId } })
   if (!account || account.isClosed) throw new NotFoundError('Account')
@@ -145,7 +171,6 @@ export async function initiateAchTransfer(userId: string, body: AchTransferBody)
     },
   })
 
-  // Decrement available balance immediately for debits
   if (txnDirection === TransactionDirection.DEBIT) {
     await prisma.account.update({
       where: { id: accountId },
@@ -153,7 +178,6 @@ export async function initiateAchTransfer(userId: string, body: AchTransferBody)
     })
   }
 
-  // Stripe: outbound ACH (Sixert → external) — Transfer to Connect account or Payout to bank
   if (
     txnDirection === TransactionDirection.DEBIT &&
     isStripeConfigured() &&
@@ -172,6 +196,7 @@ export async function initiateAchTransfer(userId: string, body: AchTransferBody)
         })
         return {
           txn,
+          referenceId: txn.id,
           stripePayoutId: transfer.id,
           stripePayoutStatus: transfer.reversed === true ? 'reversed' : 'paid',
           note: `Transfer submitted via Stripe Connect (transfer ${transfer.id}). View in Stripe Dashboard → Connect → Transfers.`,
@@ -185,6 +210,7 @@ export async function initiateAchTransfer(userId: string, body: AchTransferBody)
       })
       return {
         txn,
+        referenceId: txn.id,
         stripePayoutId: payout.id,
         stripePayoutStatus: payout.status,
         note: `Transfer submitted via Stripe (payout ${payout.id}, ${payout.status})`,
@@ -199,12 +225,12 @@ export async function initiateAchTransfer(userId: string, body: AchTransferBody)
     }
   }
 
-  // Inbound ACH (CREDIT) or no Stripe / no destination: pending
   if (txnDirection === TransactionDirection.CREDIT) {
-    return { txn, note: 'ACH credit (inbound) submission pending; Stripe inbound not yet wired' }
+    return { txn, referenceId: txn.id, note: 'ACH credit (inbound) submission pending; Stripe inbound not yet wired' }
   }
   return {
     txn,
+    referenceId: txn.id,
     note: externalAccount.stripeDestinationId
       ? 'Stripe not configured (set STRIPE_SECRET_KEY in .env)'
       : 'Link this external account with Stripe to enable payouts',
