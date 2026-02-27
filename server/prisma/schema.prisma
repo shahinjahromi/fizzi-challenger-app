@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -78,29 +77,29 @@ model User {
   standing              UserStanding @default(GOOD)
   nymbusAccountId       String?
   nymbusLedgerId        String?
-  businessAddressLine1  String?
-  businessAddressLine2  String?
-  businessCity          String?
-  businessState         String?
-  businessPostalCode    String?
-  businessCountry       String?
+  businessAddressLine1 String?
+  businessAddressLine2 String?
+  businessCity         String?
+  businessState        String?
+  businessPostalCode   String?
+  businessCountry      String?
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
 
   workspaceMemberships WorkspaceMembership[]
   refreshTokens        RefreshToken[]
-  limitAssignments     LimitAssignment[] @relation("AssignedToUser")
-  assignedByMe         LimitAssignment[] @relation("AssignedByUser")
+  limitAssignments     LimitAssignment[]     @relation("AssignedToUser")
+  assignedByMe         LimitAssignment[]     @relation("AssignedByUser")
   messages             Message[]
   achConsents          AchConsent[]
 }
 
 model Workspace {
-  id                       String   @id @default(cuid())
-  name                     String
+  id                      String   @id @default(cuid())
+  name                    String
   stripeConnectedAccountId String?
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
   memberships      WorkspaceMembership[]
   accounts         Account[]
@@ -122,18 +121,18 @@ model WorkspaceMembership {
 }
 
 model Account {
-  id             String      @id @default(cuid())
-  workspaceId    String
-  name           String
-  type           AccountType @default(CHECKING)
-  accountNumber  String      @unique
-  routingNumber  String
-  availableCents Int         @default(0)
-  currentCents   Int         @default(0)
-  isClosed       Boolean     @default(false)
-  interestRate   Float       @default(0)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id              String      @id @default(cuid())
+  workspaceId     String
+  name            String
+  type            AccountType @default(CHECKING)
+  accountNumber   String      @unique
+  routingNumber   String
+  availableCents  Int         @default(0)
+  currentCents    Int         @default(0)
+  isClosed        Boolean     @default(false)
+  interestRate    Float       @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
   workspace        Workspace         @relation(fields: [workspaceId], references: [id])
   transactions     Transaction[]
@@ -142,36 +141,36 @@ model Account {
 }
 
 model Transaction {
-  id            String            @id @default(cuid())
-  accountId     String
-  direction     TransactionDirection
-  type          TransactionType
-  status        TransactionStatus @default(PENDING)
-  amountCents   Int
-  description   String?
-  limitTierId   String?
-  limitSnapshot Json?
-  relatedTxnId  String?
-  postedAt      DateTime?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  id             String               @id @default(cuid())
+  accountId      String
+  direction      TransactionDirection
+  type           TransactionType
+  status         TransactionStatus    @default(PENDING)
+  amountCents    Int
+  description    String?
+  limitTierId    String?
+  limitSnapshot  Json?
+  relatedTxnId   String?
+  postedAt       DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
-  account   Account    @relation(fields: [accountId], references: [id])
-  limitTier LimitTier? @relation(fields: [limitTierId], references: [id])
+  account    Account      @relation(fields: [accountId], references: [id])
+  limitTier  LimitTier?   @relation(fields: [limitTierId], references: [id])
 }
 
 model ExternalAccount {
-  id                  String              @id @default(cuid())
-  workspaceId         String
-  nickname            String?
-  type                ExternalAccountType @default(CHECKING)
-  maskedNumber        String
-  routingNumber       String
-  finicityAccountId   String?
-  stripeDestinationId String?
-  isVerified          Boolean             @default(false)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  id                   String              @id @default(cuid())
+  workspaceId          String
+  nickname             String?
+  type                 ExternalAccountType @default(CHECKING)
+  maskedNumber         String
+  routingNumber        String
+  finicityAccountId    String?
+  stripeDestinationId  String?
+  isVerified           Boolean             @default(false)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
 
   workspace   Workspace    @relation(fields: [workspaceId], references: [id])
   achConsents AchConsent[]
@@ -191,16 +190,16 @@ model Statement {
 }
 
 model Message {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   threadId    String
   workspaceId String
   authorId    String
   subject     String
   body        String
-  isRead      Boolean  @default(false)
-  isDraft     Boolean  @default(false)
-  sentAt      DateTime @default(now())
-  createdAt   DateTime @default(now())
+  isRead      Boolean   @default(false)
+  isDraft     Boolean   @default(false)
+  sentAt      DateTime  @default(now())
+  createdAt   DateTime  @default(now())
 
   workspace Workspace @relation(fields: [workspaceId], references: [id])
   author    User      @relation(fields: [authorId], references: [id])
@@ -219,17 +218,17 @@ model AchConsent {
 }
 
 model LimitTier {
-  id                    String @id @default(cuid())
-  name                  String @unique
-  displayName           String
-  perTxnMaxCents        Int
-  dailyCreditMaxCents   Int
-  dailyDebitMaxCents    Int
-  monthlyCreditMaxCents Int
-  monthlyDebitMaxCents  Int
-  velocityCount         Int
-  velocityWindowMinutes Int
-  sameDayAchMaxCents    Int
+  id                      String @id @default(cuid())
+  name                    String @unique
+  displayName             String
+  perTxnMaxCents          Int
+  dailyCreditMaxCents     Int
+  dailyDebitMaxCents      Int
+  monthlyCreditMaxCents   Int
+  monthlyDebitMaxCents    Int
+  velocityCount           Int
+  velocityWindowMinutes   Int
+  sameDayAchMaxCents      Int
 
   assignments  LimitAssignment[]
   transactions Transaction[]
@@ -247,19 +246,19 @@ model LimitAssignment {
   assignedBy     String?
   createdAt      DateTime         @default(now())
 
-  user     User?     @relation("AssignedToUser", fields: [userId], references: [id])
-  account  Account?  @relation("AssignedToAccount", fields: [accountId], references: [id])
-  tier     LimitTier @relation(fields: [tierId], references: [id])
-  assigner User?     @relation("AssignedByUser", fields: [assignedBy], references: [id])
+  user      User?      @relation("AssignedToUser", fields: [userId], references: [id])
+  account   Account?   @relation("AssignedToAccount", fields: [accountId], references: [id])
+  tier      LimitTier  @relation(fields: [tierId], references: [id])
+  assigner  User?      @relation("AssignedByUser", fields: [assignedBy], references: [id])
 }
 
 model RefreshToken {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   tokenHash String
   expiresAt DateTime
   revokedAt DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id])
 }
