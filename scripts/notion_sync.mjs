@@ -1,115 +1,170 @@
-#!/usr/bin/env node
-/**
- * Sync exports from a Notion database into the repo.
- * Expects env: NOTION_TOKEN, NOTION_DATABASE_ID.
- * Queries the database for pages with status "Ready to sync" (or similar),
- * exports each page to markdown under docs/notion-exports/ (or NOTION_EXPORT_DIR).
- *
- * Run: node scripts/notion_sync.mjs
- * In CI: workflow passes NOTION_TOKEN and NOTION_DATABASE_ID from secrets.
- */
+import fs from "node:fs";
+import path from "node:path";
+import { Client } from "@notionhq/client";
+import { execSync } from "node:child_process";
 
-import { Client } from '@notionhq/client'
-import { writeFileSync, mkdirSync } from 'fs'
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
+const notionToken = process.env.NOTION_TOKEN;
+const databaseId = process.env.NOTION_DATABASE_ID;
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const rootDir = join(__dirname, '..')
+if (!notionToken) throw new Error("Missing env NOTION_TOKEN");
+if (!databaseId) throw new Error("Missing env NOTION_DATABASE_ID");
 
-const NOTION_TOKEN = process.env.NOTION_TOKEN
-const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID
-const EXPORT_DIR = process.env.NOTION_EXPORT_DIR || join(rootDir, 'docs', 'notion-exports')
+const notion = new Client({ auth: notionToken });
 
-if (!NOTION_TOKEN || !NOTION_DATABASE_ID) {
-  console.error('Missing NOTION_TOKEN or NOTION_DATABASE_ID')
-  process.exit(1)
+function ensureDirForFile(filePath) {
+  const dir = path.dirname(filePath);
+  fs.mkdirSync(dir, { recursive: true });
 }
 
-const notion = new Client({ auth: NOTION_TOKEN })
+function parseArtifactToFiles(artifactText) {
+  const lines = artifactText.replace(/\r\n/g, "\n").split("\n");
 
-/** Get plain text from a rich text array. */
-function richTextToPlain(richText) {
-  if (!Array.isArray(richText)) return ''
-  return richText.map((t) => t.plain_text || '').join('')
-}
+  const files = [];
+  let currentPath = null;
+  let buf = [];
 
-/** Recursively get block content as markdown-like lines. */
-async function blocksToMarkdown(blockId, indent = 0) {
-  const { results } = await notion.blocks.children.list({ block_id: blockId })
-  const lines = []
-  const prefix = '  '.repeat(indent)
-  for (const block of results) {
-    const b = block
-    if (b.type === 'paragraph' && b.paragraph?.rich_text) {
-      lines.push(prefix + richTextToPlain(b.paragraph.rich_text))
-    } else if (b.type === 'heading_1' && b.heading_1?.rich_text) {
-      lines.push(prefix + '# ' + richTextToPlain(b.heading_1.rich_text))
-    } else if (b.type === 'heading_2' && b.heading_2?.rich_text) {
-      lines.push(prefix + '## ' + richTextToPlain(b.heading_2.rich_text))
-    } else if (b.type === 'heading_3' && b.heading_3?.rich_text) {
-      lines.push(prefix + '### ' + richTextToPlain(b.heading_3.rich_text))
-    } else if (b.type === 'bulleted_list_item' && b.bulleted_list_item?.rich_text) {
-      lines.push(prefix + '- ' + richTextToPlain(b.bulleted_list_item.rich_text))
-    } else if (b.type === 'numbered_list_item' && b.numbered_list_item?.rich_text) {
-      lines.push(prefix + '1. ' + richTextToPlain(b.numbered_list_item.rich_text))
-    } else if (b.type === 'to_do' && b.to_do?.rich_text) {
-      const done = b.to_do.checked ? 'x' : ' '
-      lines.push(prefix + `- [${done}] ` + richTextToPlain(b.to_do.rich_text))
-    } else if (b.type === 'code' && b.code?.rich_text) {
-      lines.push(prefix + '```\n' + richTextToPlain(b.code.rich_text) + '\n```')
-    } else if (b.type === 'quote' && b.quote?.rich_text) {
-      lines.push(prefix + '> ' + richTextToPlain(b.quote.rich_text))
-    }
-    if (b.has_children) {
-      const child = await blocksToMarkdown(b.id, indent + 1)
-      lines.push(...child)
-    }
+  function flush() {
+    if (!currentPath) return;
+    let content = buf.join("\n");
+    if (content.endsWith("\n")) content = content.slice(0, -1);
+    files.push({ filePath: currentPath, content });
+    currentPath = null;
+    buf = [];
   }
-  return lines
+
+  for (const line of lines) {
+    const m = line.match(/^FILE:\s+(.+)\s*$/);
+    if (m) {
+      flush();
+      currentPath = m[1].trim();
+      continue;
+    }
+    if (currentPath) buf.push(line);
+  }
+  flush();
+
+  return files;
 }
 
-/** Sanitize a string for use in a filename. */
-function slug(s) {
-  return String(s)
-    .replace(/[^a-zA-Z0-9-_ ]/g, '')
-    .replace(/\s+/g, '-')
-    .slice(0, 80) || 'untitled'
+function readPlainTextProperty(page, propName) {
+  const prop = page.properties?.[propName];
+  if (!prop) return null;
+
+  if (prop.type === "rich_text") {
+    return prop.rich_text.map(rt => rt.plain_text).join("");
+  }
+  if (prop.type === "title") {
+    return prop.title.map(t => t.plain_text).join("");
+  }
+  return null;
+}
+
+async function updateStatus(pageId, statusName) {
+  await notion.pages.update({
+    page_id: pageId,
+    properties: {
+      Status: { status: { name: statusName } },
+    },
+  });
+}
+
+async function updateText(pageId, propName, text) {
+  await notion.pages.update({
+    page_id: pageId,
+    properties: {
+      [propName]: {
+        rich_text: [{ type: "text", text: { content: text } }],
+      },
+    },
+  });
 }
 
 async function main() {
-  // Query database: filter by Status = "Ready to sync" (adjust property name to match your DB)
-  const { results } = await notion.databases.query({
-    database_id: NOTION_DATABASE_ID,
-    filter: {
-      or: [
-        { property: 'Status', select: { equals: 'Ready to sync' } },
-        { property: 'Ready to sync', checkbox: { equals: true } },
-      ],
-    },
-  })
+  // Query all pages with Status = "Ready to sync"
+  const ready = [];
+  let cursor = undefined;
 
-  if (results.length === 0) {
-    console.log('No "Ready to sync" pages found.')
-    return
+  do {
+    const resp = await notion.databases.query({
+      database_id: databaseId,
+      start_cursor: cursor,
+      filter: {
+        property: "Status",
+        status: { equals: "Ready to sync" },
+      },
+      sorts: [{ property: "Exported at", direction: "ascending" }], // oldest first
+    });
+
+    ready.push(...resp.results);
+    cursor = resp.has_more ? resp.next_cursor : undefined;
+  } while (cursor);
+
+  if (ready.length === 0) {
+    console.log("No exports in 'Ready to sync'.");
+    return;
   }
 
-  mkdirSync(EXPORT_DIR, { recursive: true })
+  console.log(`Found ${ready.length} export(s) ready to sync.`);
 
-  for (const page of results) {
-    const title = richTextToPlain(page.properties?.title?.title ?? page.properties?.Name?.title ?? [])
-    const safeName = slug(title) || page.id.replace(/-/g, '')
-    const filePath = join(EXPORT_DIR, `${safeName}.md`)
-    const body = await blocksToMarkdown(page.id)
-    const content = `# ${title}\n\nNotion page ID: ${page.id}\n\n${body.join('\n')}\n`
-    writeFileSync(filePath, content, 'utf8')
-    console.log('Exported:', title, '->', filePath)
+  for (const page of ready) {
+    const pageId = page.id;
+    const title = readPlainTextProperty(page, "Title") || "(untitled export)";
+    const commitMsg =
+      readPlainTextProperty(page, "Commit message") ||
+      `Sync from Notion export: ${title}`;
+
+    const artifact = readPlainTextProperty(page, "Artifact");
+    if (!artifact || artifact.trim().length === 0) {
+      await updateStatus(pageId, "Draft");
+      await updateText(pageId, "Sync log", "Artifact was empty; moved back to Draft.");
+      continue;
+    }
+
+    try {
+      // Move out of Ready-to-sync immediately to prevent double-processing
+      await updateStatus(pageId, "Draft");
+
+      const files = parseArtifactToFiles(artifact);
+      if (files.length === 0) {
+        await updateText(pageId, "Sync log", "No FILE: blocks found in Artifact.");
+        continue;
+      }
+
+      // Write files
+      for (const f of files) {
+        ensureDirForFile(f.filePath);
+        fs.writeFileSync(f.filePath, f.content, "utf8");
+      }
+
+      // Stage + commit + push
+      execSync("git add -A", { stdio: "inherit" });
+
+      const porcelain = execSync("git status --porcelain").toString("utf8").trim();
+      if (!porcelain) {
+        await updateStatus(pageId, "Synced");
+        await updateText(
+          pageId,
+          "Sync log",
+          `No repo changes after applying ${files.length} file(s). Marked as Synced.`
+        );
+        continue;
+      }
+
+      execSync(`git commit -m ${JSON.stringify(commitMsg)}`, { stdio: "inherit" });
+      execSync("git push", { stdio: "inherit" });
+
+      const sha = execSync("git rev-parse HEAD").toString("utf8").trim();
+
+      await updateStatus(pageId, "Synced");
+      await updateText(pageId, "Commit SHA", sha);
+      await updateText(pageId, "Sync log", `Applied ${files.length} file(s).\nSHA: ${sha}`);
+    } catch (err) {
+      const msg = err?.stack || String(err);
+      // Requires you to add a "Failed" status option in the Notion DB
+      await updateStatus(pageId, "Failed").catch(() => {});
+      await updateText(pageId, "Sync log", `Sync failed:\n${msg}`).catch(() => {});
+    }
   }
-
-  console.log('Sync complete.')
 }
 
-main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+await main();
