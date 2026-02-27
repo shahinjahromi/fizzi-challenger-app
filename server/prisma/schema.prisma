@@ -63,6 +63,24 @@ enum LimitSubjectType {
   ACCOUNT
 }
 
+enum AuditEventType {
+  AUTH_LOGIN
+  AUTH_LOGOUT
+  AUTH_REFRESH
+  AUTH_FORGOT_PASSWORD_REQUEST
+  AUTH_PASSWORD_RESET
+  AUTH_FORGOT_USERNAME_REQUEST
+  MFA_CHALLENGE
+  MFA_VERIFY
+  WORKSPACE_SWITCH
+  INTERNAL_TRANSFER_SUBMIT
+  ACH_SUBMIT
+  STATEMENT_DOWNLOAD
+  LIMIT_DECISION
+  LIMIT_OVERRIDE
+  CONSENT_CAPTURE
+}
+
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model User {
@@ -75,6 +93,7 @@ model User {
   role                  UserRole     @default(USER)
   tenureStartDate       DateTime     @default(now())
   standing              UserStanding @default(GOOD)
+  lastLoginAt           DateTime?
   nymbusAccountId       String?
   nymbusLedgerId        String?
   businessAddressLine1 String?
@@ -92,6 +111,8 @@ model User {
   assignedByMe         LimitAssignment[]     @relation("AssignedByUser")
   messages             Message[]
   achConsents          AchConsent[]
+  auditEvents          AuditEvent[]
+  idempotencyKeys      IdempotencyKey[]
 }
 
 model Workspace {
@@ -261,4 +282,37 @@ model RefreshToken {
   createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model AuditEvent {
+  id           String         @id @default(cuid())
+  type         AuditEventType
+  userId       String?
+  workspaceId  String?
+  correlationId String?
+  ipAddress    String?
+  userAgent    String?
+  metadata     Json?
+  createdAt    DateTime       @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+}
+
+model IdempotencyKey {
+  id            String   @id @default(cuid())
+  userId        String
+  scope         String
+  key           String
+  requestHash   String
+  responseBody  Json
+  statusCode    Int
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, scope, key])
+  @@index([createdAt])
 }
