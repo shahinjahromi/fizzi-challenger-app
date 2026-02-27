@@ -1,11 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { randomUUID } from 'crypto'
 
-declare global {
-  // eslint-disable-next-line no-var
-  var __sixertRequestContext: unique symbol
-}
-
 declare module 'express-serve-static-core' {
   interface Request {
     correlationId?: string

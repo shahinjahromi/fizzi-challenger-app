@@ -1,5 +1,6 @@
 import { prisma } from '../config/prisma'
 import { AuditEventType } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 
 export async function writeAuditEvent(params: {
   type: AuditEventType
@@ -8,7 +9,7 @@ export async function writeAuditEvent(params: {
   correlationId?: string
   ipAddress?: string
   userAgent?: string
-  metadata?: Record<string, unknown>
+  metadata?: Prisma.InputJsonValue
 }) {
   const { type, userId, workspaceId, correlationId, ipAddress, userAgent, metadata } = params
   await prisma.auditEvent.create({
