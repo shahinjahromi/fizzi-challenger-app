@@ -1,9 +1,6 @@
+# Node modules
 node_modules/
-dist/
-.env
-*.env.local
-.DS_Store
-*.log
-coverage/
-.angular/
-.vercel/
+
+# Build artifacts
+/dist/
+/build/
