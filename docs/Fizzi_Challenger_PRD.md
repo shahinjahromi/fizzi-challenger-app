@@ -1,13 +1,15 @@
-# Sixert Bank – Product Requirements Document (PRD)
+# Fizzi Challenger – Product Requirements Document (PRD)
 **Phase:** Web (Angular) – Phase 1  
 **Audience:** PM, Design, Engineering, QA, Integrations  
 **Status:** Standalone (consolidated)  
 **Provenance:** Merged from Sixert ADO CSV exports (functional + defects) and DRyVE (ZiFi) backlog CSV. Contains business rules and acceptance criteria. Enhancement sections are explicitly labeled; DRyVE items are clearly marked.
 
+**Revising this document:** Edit this PRD in human-friendly language first. Then add an entry to `docs/requirements/change_log.md` (summary + impacted requirement IDs) and have Cursor/Copilot update `docs/requirements/*` and `docs/traceability/traceability_matrix.csv`. Full steps: `docs/requirements/REQUIREMENTS_UPDATE_CHECKLIST.md`.
+
 ---
 
 ## 1. Purpose and Scope
-This document defines the human‑readable, end‑to‑end requirements for Sixert’s small‑business online banking experience. It covers: Authentication, Workspaces, Accounts, Transactions, Money Movement (Internal + ACH), Statements, Messaging, Profile & Security Center, Notifications, and Limits & Approvals. Mobile‑specific items are included where explicitly stated.
+This document defines the human‑readable, end‑to‑end requirements for Sixert's small‑business online banking experience. It covers: Authentication, Workspaces, Accounts, Transactions, Money Movement (Internal + ACH), Statements, Messaging, Profile & Security Center, Notifications, and Limits & Approvals. Mobile‑specific items are included where explicitly stated.
 
 Out of scope: full dual‑approval workflows, wires, complex entitlements UI, banker desktop/back‑office UIs (except where called out for overrides).
 
