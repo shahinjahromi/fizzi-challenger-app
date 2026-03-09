@@ -1,10 +1,28 @@
 # Fizzi Challenger – Product Requirements Document (PRD)
-**Phase:** Web (Angular) – Phase 1  
+**Phases:**  
+- **Phase 1 – Web (Angular)**  
+- **Phase 2 – Android App**  
+- **Phase 3 – iOS App**  
 **Audience:** PM, Design, Engineering, QA, Integrations  
 **Status:** Standalone (consolidated)  
 **Provenance:** Merged from Sixert ADO CSV exports (functional + defects) and DRyVE (ZiFi) backlog CSV. Contains business rules and acceptance criteria. Enhancement sections are explicitly labeled; DRyVE items are clearly marked.
 
 **Revising this document:** Edit this PRD in human-friendly language first. Then add an entry to `docs/requirements/change_log.md` (summary + impacted requirement IDs) and have Cursor/Copilot update `docs/requirements/*` and `docs/traceability/traceability_matrix.csv`. Full steps: `docs/requirements/REQUIREMENTS_UPDATE_CHECKLIST.md`.
+
+---
+
+## 0. Phases & Platforms
+
+- **Phase tags:**  
+  - `[P1]` – Phase 1 Web (Angular)  
+  - `[P2]` – Phase 2 Android App  
+  - `[P3]` – Phase 3 iOS App  
+- **Platform tags:**  
+  - `[Web]` – Browser-based Angular app  
+  - `[Android]` – Native Android app  
+  - `[iOS]` – Native iOS app  
+
+Unless otherwise noted, all requirements in this PRD are considered to apply to **all three phases and all three platforms**: `[P1–P3][Web][Android][iOS]`. Future, platform-specific or phase-specific requirements will explicitly call out narrower tags (for example, `[P2][Android]` or `[P3][iOS]`).
 
 ---
 

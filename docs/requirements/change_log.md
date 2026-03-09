@@ -4,6 +4,14 @@ Requirements changes follow a **PRD-first workflow**: edit `docs/Fizzi_Challenge
 
 ---
 
+## 2026-03-09  (Phases & Platforms tagging)
+- Added a Phases & Platforms section to the PRD, defining `[P1]`, `[P2]`, `[P3]` and `[Web]`, `[Android]`, `[iOS]`.
+- Clarified that, unless otherwise specified, all existing requirements apply across `[P1–P3][Web][Android][iOS]`.
+
+Impacted requirement IDs: None (scope/tagging metadata only).
+
+---
+
 ## 2026-03-09
 - Renamed PRD from `Sixert_PRD.md` to `Fizzi_Challenger_PRD.md`; updated document title to "Fizzi Challenger".
 - Updated references in `change_log.md` and `REQUIREMENTS_UPDATE_CHECKLIST.md`.
