@@ -1,2 +1,0 @@
-If you can read this file in the repo, the GitHub MCP connection can write single files to main.
-Timestamp: 2026-02-27
