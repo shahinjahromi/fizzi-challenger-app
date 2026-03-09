@@ -46,7 +46,7 @@
 - Cutoff rule messaging reflects 1:00 PM ET next-business-day posting.
 
 ### ACH
-- External account linking via Finicity modal.
+- External account linking via a Mastercard Finicity Open Finance modal.
 - ACH form validates routing/account with specific errors.
 - Consumer debit requires disclosures (Reg E, NACHA, E-Sign) and explicit consent.
 

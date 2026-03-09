@@ -8,8 +8,8 @@ Sixert Bank is building a small-business online banking experience to attract de
 - Launch target segment: SMBs with under $1M annual revenue and teams under 10 people.
 - Future expansion: larger SMBs.
 
-## Scope (Phase 1)
-This requirements export covers the web app experience (Angular) for:
+## Scope and phases
+This requirements export primarily covers **Phase 1** of the Fizzi Challenger experience (Web app in Angular), with additional requirements tagged in the PRD for future **Phase 2 (Android app)** and **Phase 3 (iOS app)**. The Phase 1 scope includes:
 - Authentication and session management
 - Multi-entity workspaces
 - Accounts overview
@@ -25,6 +25,11 @@ This requirements export covers the web app experience (Angular) for:
 - Wires
 - Complex entitlements UI
 - Banker desktop/back-office UIs, except where explicitly required for overrides
+
+## External systems and dependencies
+- **Identity & Security:** Customer identity, username/password, MFA, and session management are provided by the Transmit Security Mosaic platform and its APIs/journeys.
+- **Core banking:** Accounts, balances, transactions, and limits are sourced from **Nymbus Core** as the system of record, via Nymbus APIs.
+- **External account linking:** External account linking and aggregation for ACH and related flows is implemented via **Mastercard Finicity Open Finance** APIs.
 
 ## Personas
 - Primary Admin (Business Owner): full access across owned entities, initiates transfers/ACH, manages security.

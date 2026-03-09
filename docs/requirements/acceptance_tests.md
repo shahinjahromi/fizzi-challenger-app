@@ -6,6 +6,8 @@
 - After completing password reset, the login screen shows no banners and no prefilled username.
 - On session timeout, re-authentication clears and re-initializes workspace and account caches.
 - Forgot-username requests are rate-limited, CAPTCHA-protected, audited, and deliver username only via verified channel.
+- Forgot-password flow sends a reset link to the email address on file, verifies the user’s username, allows the user to set a new password, and returns to a clean login screen with no residual banners or prefilled values.
+- After setting a new password via the forgot-password flow, logging in with the new password succeeds and then prompts the user for MFA before completing authentication when MFA is required by policy.
 
 ## Workspaces
 - Workspace selector lists all entitled entities.
@@ -39,6 +41,8 @@
 - Invalid routing/account inputs show specific errors and prevent requests to core.
 - Lifecycle notifications are not duplicated.
 - Consumer debit requires disclosures and consent; without consent, submission is blocked.
+- External account linking via the Mastercard Finicity Open Finance modal handles success, cancel, and error states with clear and actionable messaging.
+- Linked external accounts from Mastercard Finicity appear with consistent naming and masking across ACH flows.
 
 ## Statements
 - Only available months are listed.

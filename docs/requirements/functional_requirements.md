@@ -2,14 +2,14 @@
 
 ## Authentication & session
 - **FR-001**: The system must support username and password login with visible loading states and precise error messages.
-- **FR-002**: The system must support password reset that returns the user to a clean login state with no residual banners and no prefilled values.
+- **FR-002**: The system must support a forgot-password flow that sends a reset link to the email address on file, guides the user through verifying their username, clearing any existing MFA state, and choosing a new password, and on completion returns the user to a clean login state with no residual banners and no prefilled values while enforcing MFA again on the next login when required by policy.
 - **FR-003**: The system must support username recovery without revealing the username in-app.
 - **FR-004**: On session expiration, the system must clear workspace and account caches and require re-authentication.
 - **FR-005**: After re-authentication, the system must re-initialize workspace and account state.
 - **FR-006**: For multi-entity users, the system must load all entitled entities.
 - **FR-007**: For single-workspace users, the system must automatically select the workspace and bypass workspace selection.
 - **FR-008**: The login experience must support username or email input with input validation.
-- **FR-009**: When MFA is required by policy, the login experience must collect MFA inputs and proceed through verification.
+- **FR-009**: When MFA is required by policy, the login experience must collect and verify MFA via a mobile one-time passcode sent to the verified mobile number on file or another approved factor and then proceed through verification.
 - **FR-010**: The forgot-username flow must deliver the username only via a verified channel after multi-factor identity checks, must use rate limiting and CAPTCHA, and must create an audit trail.
 
 ## Workspaces (multi-entity)
@@ -56,7 +56,7 @@
 - **FR-043**: The system must validate routing and account numbers and show specific errors for invalid inputs before initiating a core request.
 - **FR-044**: The system must respect cutoff times and lifecycle states for ACH transfers.
 - **FR-045**: The system must avoid premature success notifications and must not generate duplicate notifications.
-- **FR-046**: The system must support external account linking via a Finicity modal integration with clear success, cancel, and error handling.
+- **FR-046**: The system must support external account linking via a Mastercard Finicity Open Finance modal integration with clear success, cancel, and error handling.
 - **FR-047**: For consumer debit ACH, the system must present Reg E, NACHA, and E-Sign disclosures before submission.
 - **FR-048**: For consumer debit ACH, the system must capture consent artifacts including timestamp, IP address, and externalAccountId and store auditable records.
 - **FR-049**: For consumer debit ACH, the system must block submission if consent is not captured.

@@ -61,7 +61,7 @@ These contracts describe the fields needed to satisfy product and engineering be
 - displayName
 - maskedAccount (last4)
 - routingLast4 (optional)
-- provider (Finicity)
+- provider (Mastercard Finicity Open Finance)
 - status (Linked | Error | Pending)
 
 ## Consent (ACH Level-3 for consumer debit)

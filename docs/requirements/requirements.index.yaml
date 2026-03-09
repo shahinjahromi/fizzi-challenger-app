@@ -1,7 +1,7 @@
 schema_version: 1.0
 project:
-  name: Sixert Banking App
-  slug: sixert_bank
+  name: Fizzi Challenger App
+  slug: fizzi_challenger_app
 outputs:
   business_context: docs/requirements/business_context.md
   functional_requirements: docs/requirements/functional_requirements.md

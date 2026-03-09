@@ -37,3 +37,8 @@
 - **NFR-024**: Public APIs and domain abstractions must preserve the Liskov Substitution Principle: any implementation of an interface/abstract type must be safely substitutable without surprising side effects.
 - **NFR-025**: Service and module interfaces must preserve the Interface Segregation Principle: avoid “fat” interfaces and prefer smaller, role-specific interfaces so callers do not depend on unused methods.
 - **NFR-026**: Code changes must preserve the Dependency Inversion Principle: depend on abstractions, not concrete implementations, and inject infrastructure (databases, bank-core providers, notification providers) behind stable interfaces.
+
+## Integrations and external providers
+- **NFR-027**: Identity, authentication, password, and session management flows must be implemented using the Transmit Security Mosaic platform and its APIs/journeys as the primary customer identity provider.
+- **NFR-028**: Core banking capabilities (accounts, balances, transactions, limits) must integrate with Nymbus Core APIs as the system of record for financial data.
+- **NFR-029**: External account linking and aggregation must use Mastercard Finicity Open Finance APIs as the provider for external account data and linking journeys.
