@@ -29,6 +29,11 @@ Unless otherwise noted, all requirements in this PRD are considered to apply to 
 ## 1. Purpose and Scope
 This document defines the human‑readable, end‑to‑end requirements for Sixert's small‑business online banking experience. It covers: Authentication, Workspaces, Accounts, Transactions, Money Movement (Internal + ACH), Statements, Messaging, Profile & Security Center, Notifications, and Limits & Approvals. Mobile‑specific items are included where explicitly stated.
 
+This solution is implemented on top of the following external systems and services:
+- **Identity & Security (Auth, Password, Session):** implemented via Transmit Security Mosaic identity platform, integrating with Transmit’s APIs and journeys as documented in the [Transmit Security documentation](https://developer.transmitsecurity.com/). Username/password login, MFA, and recovery flows are orchestrated through Transmit.
+- **Core Banking (Accounts, Balances, Transactions, Limits):** implemented on **Nymbus Core**; account data, transaction history, and limits decisions are sourced from Nymbus APIs ([Nymbus](https://www.nymbus.com/) and [Nymbus API docs](https://nymbus-docs.stoplight.io/explore)).
+- **External Account Linking & Aggregation:** implemented via **Mastercard Finicity Open Finance**; external account linking and related data use the Mastercard Finicity APIs as documented in the [Mastercard Finicity Open Finance docs](https://developer.mastercard.com/open-finance-us/documentation/).
+
 Out of scope: full dual‑approval workflows, wires, complex entitlements UI, banker desktop/back‑office UIs (except where called out for overrides).
 
 ---
@@ -52,12 +57,14 @@ Out of scope: full dual‑approval workflows, wires, complex entitlements UI, ba
 
 🟪 DRyVE Requirement (Added from DRyVE backlog — ZiFi Web/Mobile)
 **DRyVE Requirements**
-- **Login V2 (ZiFi Design System):** modern, accessible login; supports username or email; input validation; MFA inputs when required.  
+- **Login V2 (ZiFi Design System):** modern, accessible login; supports username or email; input validation; supports MFA via a mobile OTP against verified mobile number on file when required, orchestrated via Transmit Security Mosaic.  
 - **Secure Account Recovery (Forgot Username):** username is never shown in‑app; deliver via verified channel; multi‑factor identity checks; CAPTCHA/rate limiting; audit trail; short‑lived tokens.  
+- **Secure Account Recovery (Forgot Password):** Forgot password is implemented by sending a reset password link to the email on file. When click-on, the link in email takes the customer to a flow to verify their username, then clear MFA and finally allow them to pick a new password to be used on next login.
 
 **Acceptance Criteria**
 - After password reset, returning to login shows no banners and no prefilled username.  
 - On session timeout, re‑auth re‑initializes workspace and account caches.  
+- A successful forgot-password request allows the customer to login using the newly set password, then prompts customer for MFA before authenticating the session.
 - A successful forgot‑username request results in delivery via verified channel only; requests are rate‑limited and logged.  
 
 ---
@@ -96,7 +103,7 @@ Out of scope: full dual‑approval workflows, wires, complex entitlements UI, ba
 - Header shows **last login**; left navigation highlights active route; add **Footer** with compliance links.  
 
 **Acceptance Criteria**
-- Overview reflects pending/posted deltas accurately; closed accounts excluded by default and grouped under "Closed" if shown.  
+- Overview reflects pending/posted deltas accurately; closed accounts excluded by default and grouped under "Closed" if any.  
 
 ---
 
@@ -146,7 +153,7 @@ Out of scope: full dual‑approval workflows, wires, complex entitlements UI, ba
 
 🟪 DRyVE Requirement (Added from DRyVE backlog — ZiFi Web/Mobile)
 **DRyVE Requirements**
-- **External Account Linking (Finicity):** modal integration; success/cancel/error handling; consistent naming/masking; clear retry guidance.  
+- **External Account Linking (Mastercard Finicity):** modal integration; success/cancel/error handling; consistent naming/masking; clear retry guidance using Mastercard Finicity Open Finance APIs.  
 - **ACH Level‑3 (Consumer Debit E‑Sign):** present Reg E, NACHA, E‑Sign disclosures before consumer debits; capture consent (timestamp, IP, externalAccountId); block without consent; bypass for business accounts; store auditable records.  
 
 **Acceptance Criteria**

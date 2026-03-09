@@ -4,6 +4,25 @@ Requirements changes follow a **PRD-first workflow**: edit `docs/Fizzi_Challenge
 
 ---
 
+## 2026-03-09  (External systems: Transmit, Nymbus, Mastercard Finicity)
+- Documented that identity, password, and session management are implemented via Transmit Security Mosaic, with flows orchestrated through Transmit’s APIs and journeys.
+- Documented that core banking (accounts, balances, transactions, limits) is implemented on Nymbus Core, with data sourced from Nymbus APIs.
+- Clarified that external account linking and aggregation use Mastercard Finicity Open Finance APIs, updating the ACH external-account linking requirement to reference Mastercard Finicity explicitly.
+
+Impacted requirement IDs: Auth/Session; Accounts/Transactions; ACH External Account Linking; API/Integration NFRs. Propagate to `functional_requirements.md`, `non_functional_requirements.md`, `acceptance_tests.md`, and the traceability matrix when syncing.
+
+---
+
+## 2026-03-09  (Auth & Accounts clarifications)
+- **Login V2 / MFA:** Clarified that MFA is delivered via mobile OTP against verified mobile number on file when required.
+- **Secure Account Recovery (Forgot Password):** Added DRyVE requirement: reset link to email on file; flow verifies username, clears MFA, then allows new password; use on next login.
+- **Acceptance Criteria:** Added AC that a successful forgot-password flow allows login with the new password and then prompts for MFA before authenticating the session.
+- **Accounts Overview:** Minor wording change to closed-accounts AC (“if shown” → “if any”).
+
+Impacted requirement IDs: Auth/Session (e.g. FR-001 and related login/MFA/forgot-password); Accounts Overview AC. Propagate to `functional_requirements.md`, `acceptance_tests.md`, and traceability matrix when syncing.
+
+---
+
 ## 2026-03-09  (Phases & Platforms tagging)
 - Added a Phases & Platforms section to the PRD, defining `[P1]`, `[P2]`, `[P3]` and `[Web]`, `[Android]`, `[iOS]`.
 - Clarified that, unless otherwise specified, all existing requirements apply across `[P1–P3][Web][Android][iOS]`.
