@@ -4,6 +4,16 @@ Requirements changes follow a **PRD-first workflow**: edit `docs/Fizzi_Challenge
 
 ---
 
+## 2026-03-10  (Design linkage expansion)
+- Expanded approved Figma-to-requirement linkage coverage in design traceability artifacts.
+- Added concrete approved design anchors for Login, Loan Dashboard, Account Detail, Home, Privacy Statement, and Security Center.
+- Added debit-card management lock-card mappings (single and multiple card flows) as approved design references for future requirement linkage.
+- Updated `docs/design/figma_index.md` and `docs/traceability/design_requirement_links.csv` to include concrete node IDs and approved Figma URLs.
+
+Impacted requirement IDs: None (traceability/documentation mapping update only; no requirement statement changes).
+
+---
+
 ## 2026-03-09  (External systems: Transmit, Nymbus, Mastercard Finicity)
 - Documented that identity, password, and session management are implemented via Transmit Security Mosaic, with flows orchestrated through Transmit’s APIs and journeys.
 - Documented that core banking (accounts, balances, transactions, limits) is implemented on Nymbus Core, with data sourced from Nymbus APIs.
