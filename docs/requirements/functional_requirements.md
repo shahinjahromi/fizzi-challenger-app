@@ -108,4 +108,4 @@
 - **FR-087**: The UI must not expose internal tier names and must use friendly copy.
 
 ## Traceability
-- **FR-088**: The project must maintain a traceability matrix mapping requirements to source backlog item identifiers for Sixert and DRyVE using Sixert_Traceability_Matrix.csv/.xlsx.
+- **FR-088**: The project must maintain a traceability matrix mapping requirements to source backlog item identifiers for Fizzi Challenger and DRyVE using Fizzi_Challenger_Traceability_Matrix.csv/.xlsx.

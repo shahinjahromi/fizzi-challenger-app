@@ -20,7 +20,7 @@ import { HttpErrorResponse } from '@angular/common/http';
       <div class="login-card">
         <div class="login-header">
           <span class="login-logo">⬡</span>
-          <h1 class="login-title">Sixert Bank</h1>
+          <h1 class="login-title">Fizzi Challenger Bank</h1>
           <p class="login-subtitle">Sign in to your account</p>
         </div>
 

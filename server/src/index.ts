@@ -67,7 +67,7 @@ app.use(errorHandler);
 const PORT = parseInt(process.env['PORT'] ?? '4001', 10);
 
 app.listen(PORT, () => {
-  logger.info(`Sixert Bank server listening on port ${PORT}`, {
+  logger.info(`Fizzi Challenger Bank server listening on port ${PORT}`, {
     nodeEnv: process.env['NODE_ENV'],
     port: PORT,
   });

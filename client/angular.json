@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "sixert-bank-client": {
+    "fizzi-challenger-bank-client": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -18,7 +18,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/sixert-bank-client",
+            "outputPath": "dist/fizzi-challenger-bank-client",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
@@ -63,10 +63,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "sixert-bank-client:build:production"
+              "buildTarget": "fizzi-challenger-bank-client:build:production"
             },
             "development": {
-              "buildTarget": "sixert-bank-client:build:development"
+              "buildTarget": "fizzi-challenger-bank-client:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -74,7 +74,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "sixert-bank-client:build"
+            "buildTarget": "fizzi-challenger-bank-client:build"
           }
         },
         "test": {

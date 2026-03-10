@@ -1,4 +1,4 @@
-# Sixert Bank — Architecture Overview
+# Fizzi Challenger Bank — Architecture Overview
 
 ## Scope
 This repository implements a web banking experience with a Node.js API and an Angular client.

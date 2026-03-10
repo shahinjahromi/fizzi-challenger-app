@@ -8,7 +8,7 @@ import { DatePipe } from '@angular/common';
   template: `
     <footer class="footer" role="contentinfo">
       <div class="footer-inner">
-        <span class="copyright">© {{ now | date:'yyyy' }} Sixert Bank. Member FDIC.</span>
+        <span class="copyright">© {{ now | date:'yyyy' }} Fizzi Challenger Bank. Member FDIC.</span>
         <nav class="footer-links" aria-label="Footer links">
           <a href="#" class="footer-link">Privacy Policy</a>
           <a href="#" class="footer-link">Terms of Use</a>

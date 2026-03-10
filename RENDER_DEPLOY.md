@@ -1,4 +1,4 @@
-# Deploy Sixert Bank server to Render
+# Deploy Fizzi Challenger Bank server to Render
 
 This walks you through hosting the **Node/Express API** on Render (always-on). Use **Vercel** for the Angular client, or host the client on Render as a Static Site too.
 
@@ -9,7 +9,7 @@ This walks you through hosting the **Node/Express API** on Render (always-on). U
 1. Go to **[render.com](https://render.com)** and sign up (or log in).
 2. Click **Dashboard** → **Connect account** (or **Add new** → **GitHub**).
 3. Connect your GitHub account and allow Render to access your repos.
-4. Choose **Only select repositories** and pick **shahinjahromi/sixert_bank** (or your fork). Save.
+4. Choose **Only select repositories** and pick **shahinjahromi/fizzi_challenger_bank** (or your fork). Save.
 
 ---
 
@@ -17,7 +17,7 @@ This walks you through hosting the **Node/Express API** on Render (always-on). U
 
 1. In the Render dashboard, click **New +** → **PostgreSQL**.
 2. Set:
-   - **Name:** `sixert-bank-db` (or any name).
+   - **Name:** `fizzi-challenger-bank-db` (or any name).
    - **Region:** Pick one close to you (e.g. Oregon).
    - **Plan:** **Free** (expires after 90 days; then upgrade or migrate).
 3. Click **Create Database**.
@@ -28,9 +28,9 @@ This walks you through hosting the **Node/Express API** on Render (always-on). U
 ## Part 3: Create the Web Service (API)
 
 1. In the dashboard, click **New +** → **Web Service**.
-2. **Connect repository:** Select **shahinjahromi/sixert_bank** (or your repo). Click **Connect**.
+2. **Connect repository:** Select **shahinjahromi/fizzi_challenger_bank** (or your repo). Click **Connect**.
 3. **Configure:**
-   - **Name:** `sixert-bank-api` (or any name).
+   - **Name:** `fizzi-challenger-bank-api` (or any name).
    - **Region:** Same as the DB (e.g. Oregon).
    - **Branch:** `main`.
    - **Root Directory:** Click **Add root directory** and enter **`server`**. (So Render only builds/deploys the `server` folder.)
@@ -65,7 +65,7 @@ This walks you through hosting the **Node/Express API** on Render (always-on). U
 6. Click **Create Web Service**. Render will clone the repo, run the build, then start the server.
 
 7. Wait for the first deploy to finish. The service URL will look like:  
-   `https://sixert-bank-api.onrender.com`
+   `https://fizzi-challenger-bank-api.onrender.com`
 
 ---
 
@@ -113,11 +113,11 @@ npx prisma db seed
 
    **B) Use Vercel for client only and Render for API**  
    - Deploy the **client** to Vercel with the API base URL set to your Render URL.
-   - In Angular you need to use an environment variable for the API base (e.g. `https://sixert-bank-api.onrender.com`) and send all `/api` requests there instead of relative. That usually means:
+   - In Angular you need to use an environment variable for the API base (e.g. `https://fizzi-challenger-bank-api.onrender.com`) and send all `/api` requests there instead of relative. That usually means:
      - Add something like `apiUrl` in `environment.ts` (or env) and use it in your HTTP calls.
-     - Set that in Vercel env (e.g. `NG_APP_API_URL=https://sixert-bank-api.onrender.com`) and rebuild.
+     - Set that in Vercel env (e.g. `NG_APP_API_URL=https://fizzi-challenger-bank-api.onrender.com`) and rebuild.
 
-3. In **Render**, ensure **CLIENT_URL** is set to your Vercel URL (e.g. `https://sixert-bank-client.vercel.app`) so CORS allows the frontend.
+3. In **Render**, ensure **CLIENT_URL** is set to your Vercel URL (e.g. `https://fizzi-challenger-bank-client.vercel.app`) so CORS allows the frontend.
 
 ---
 
@@ -139,7 +139,7 @@ If you prefer everything on Render:
 
 | What | Where | URL |
 |------|--------|-----|
-| API (Express) | Render Web Service | `https://sixert-bank-api.onrender.com` |
+| API (Express) | Render Web Service | `https://fizzi-challenger-bank-api.onrender.com` |
 | DB | Render Postgres | (internal URL only; use External for migrations) |
 | Client (Angular) | Vercel or Render Static Site | Your choice |
 

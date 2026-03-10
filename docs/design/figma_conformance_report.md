@@ -206,7 +206,7 @@ Each approved Figma frame was reviewed against the corresponding Angular compone
 | Terms of Use link | ✅ Pass | `<a href="#" class="footer-link">Terms of Use</a>` |
 | FDIC Notice link | ✅ Pass | `<a href="#" class="footer-link">FDIC Notice</a>` |
 | Accessibility link | ✅ Pass | `<a href="#" class="footer-link">Accessibility</a>` |
-| Copyright notice | ✅ Pass | `© {{ now \| date:'yyyy' }} Sixert Bank. Member FDIC.` |
+| Copyright notice | ✅ Pass | `© {{ now \| date:'yyyy' }} Fizzi Challenger Bank. Member FDIC.` |
 | `role="contentinfo"` on `<footer>` | ✅ Pass | WCAG landmark |
 
 **Overall:** ✅ Conformant
@@ -219,7 +219,7 @@ Each approved Figma frame was reviewed against the corresponding Angular compone
 
 | Check | Status | Notes |
 |-------|--------|-------|
-| Header: "Sixert Bank" logo linking to dashboard | ✅ Pass | `routerLink="/dashboard"` with ARIA label |
+| Header: "Fizzi Challenger Bank" logo linking to dashboard | ✅ Pass | `routerLink="/dashboard"` with ARIA label |
 | Header: current workspace name pill | ✅ Pass | Shown when workspace selected |
 | Header: last login timestamp (FR-020) | ✅ Pass | `user.lastLoginAt \| date:'medium'` |
 | Header: unread messages badge | ✅ Pass | Red badge count on envelope icon |
