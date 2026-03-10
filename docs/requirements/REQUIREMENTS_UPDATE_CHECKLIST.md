@@ -49,6 +49,12 @@ Using the PRD and the latest change log entry as the source of truth:
 - For **changed** requirement text: update the “Requirement summary” column so it matches the updated wording in `functional_requirements.md` or `non_functional_requirements.md`.
 - Leave Status/Evidence/Gap/Next steps as-is unless you are deliberately updating implementation status.
 
+If the changed requirement has a UI design source, also update:
+
+- **File:** `docs/traceability/design_requirement_links.csv`
+- Add or update the row for the relevant Figma Level 1 design scope.
+- Capture the Figma file URL, root node ID, mapped PRD section, requirement IDs, and any notes about child frames or implementation scope.
+
 ---
 
 ## Change log entry template
@@ -77,5 +83,7 @@ Assumptions / decisions (optional):
 | 2 | Add a dated entry in `docs/requirements/change_log.md` (summary + impacted IDs). |
 | 3 | Update `functional_requirements.md` / `non_functional_requirements.md` / `acceptance_tests.md` (and other artifacts as needed) from the PRD. |
 | 4 | Update `docs/traceability/traceability_matrix.csv` (add/remove/update rows for affected IDs). |
+| 5 | If UI design is involved, update `docs/traceability/design_requirement_links.csv` with the approved Figma source and root node. |
 
-When using Cursor or Copilot, you can ask it to: *“Apply the latest change log entry to the requirements folder and traceability matrix.”*
+When using Cursor or Copilot, you can ask it to: *“Apply the latest change log entry to the requirements folder, traceability matrix, and design linkage file.”*
+
