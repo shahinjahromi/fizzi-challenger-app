@@ -12,6 +12,8 @@ jobs:
   client-build:
     name: Build Angular Client (UI Verification)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -26,7 +28,7 @@ jobs:
 
       - name: Install client dependencies
         working-directory: client
-        run: npm install
+        run: npm ci
 
       - name: Build Angular client (production)
         working-directory: client
