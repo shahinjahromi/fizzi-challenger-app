@@ -57,15 +57,6 @@ import { HttpErrorResponse } from '@angular/common/http';
             <span>⚠</span> {{ errorMsg }}
           </div>
 
-          <div class="demo-credentials" *ngIf="showTestCredentials">
-            <p class="demo-credentials__title">Local test credentials</p>
-            <div class="demo-credentials__row" *ngFor="let cred of demoCredentials">
-              <span class="demo-credentials__username">{{ cred.username }}</span>
-              <span class="demo-credentials__password">{{ cred.password }}</span>
-              <span class="demo-credentials__note">{{ cred.note }}</span>
-            </div>
-          </div>
-
           <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
             <div class="form-group">
               <label for="identifier" class="form-label">Username or Email</label>
@@ -164,6 +155,15 @@ import { HttpErrorResponse } from '@angular/common/http';
           <div class="alert alert-success" *ngIf="forgotMsg" role="status" aria-live="polite">
             {{ forgotMsg }}
           </div>
+
+          <div class="demo-credentials" *ngIf="showTestCredentials" aria-label="Local demo accounts">
+            <p class="demo-credentials__title">Local demo accounts</p>
+            <div class="demo-credentials__row" *ngFor="let cred of demoCredentials">
+              <span class="demo-credentials__username">{{ cred.username }}</span>
+              <span class="demo-credentials__email">{{ cred.email }}</span>
+              <span class="demo-credentials__password">{{ cred.password }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -245,30 +245,34 @@ import { HttpErrorResponse } from '@angular/common/http';
       margin-top: 20px; font-size: 13px;
     }
     .demo-credentials {
-      margin: 0 0 16px;
-      padding: 10px 12px;
-      border: 1px dashed var(--color-border);
-      border-radius: var(--radius-md);
+      margin: 18px 0 0;
+      padding-top: 10px;
+      border-top: 1px solid rgba(107, 114, 128, 0.2);
       color: var(--color-text-muted);
-      opacity: 0.9;
-      font-size: 12px;
+      opacity: 0.55;
+      font-size: 11px;
     }
     .demo-credentials__title {
-      margin: 0 0 8px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      margin: 0 0 6px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
     }
     .demo-credentials__row {
       display: grid;
-      grid-template-columns: 72px 88px 1fr;
-      gap: 8px;
+      grid-template-columns: 54px 1fr 78px;
+      gap: 6px;
       line-height: 1.35;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .demo-credentials__row:last-child { margin-bottom: 0; }
     .demo-credentials__username,
     .demo-credentials__password {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .demo-credentials__email {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .link-btn {
       background: none; border: none; padding: 0;
@@ -291,10 +295,10 @@ export class LoginComponent {
     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
   readonly demoCredentials = [
-    { username: 'bob', password: 'demo1234', note: 'Single workspace flow' },
-    { username: 'alice', password: 'demo1234', note: 'Workspace selector flow' },
-    { username: 'carol', password: 'demo1234', note: 'Beta LLC test user' },
-    { username: 'dave', password: 'demo1234', note: 'Authorized user view' },
+    { username: 'alice', email: 'alice@example.com', password: 'demo1234' },
+    { username: 'bob', email: 'bob@example.com', password: 'demo1234' },
+    { username: 'carol', email: 'carol@example.com', password: 'demo1234' },
+    { username: 'dave', email: 'dave@example.com', password: 'demo1234' },
   ];
 
   form: FormGroup;
