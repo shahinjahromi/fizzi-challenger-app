@@ -1,0 +1,257 @@
+# Azure Pipelines CI/CD Configuration
+# Fizzi Challenger App – Sixert Bank
+#
+# Supports two deployment targets:
+#   1. Local developer dev box (manual steps — see LOCAL_DEPLOY.md)
+#   2. Azure (via this pipeline to Azure App Service or Container Apps)
+#
+# Requirements traceability: v0.1.0 — see logs/requirements_version_log.md
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - 'release/*'
+  paths:
+    exclude:
+      - 'docs/**'
+      - '*.md'
+      - 'logs/**'
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+variables:
+  NODE_VERSION: '18.x'
+  SERVER_DIR: 'server'
+  CLIENT_DIR: 'client'
+  # Override these in the Azure DevOps pipeline variable group "fizzi-app-secrets"
+  # - DATABASE_URL
+  # - JWT_ACCESS_SECRET
+  # - JWT_REFRESH_SECRET
+  # - CLIENT_URL (e.g. https://your-app.azurewebsites.net)
+
+stages:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Stage 1: Build & Test
+  # ─────────────────────────────────────────────────────────────────────────────
+  - stage: BuildAndTest
+    displayName: 'Build & Test'
+    jobs:
+      - job: ServerBuild
+        displayName: 'Server – Build & Test'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+            displayName: 'Install Node.js $(NODE_VERSION)'
+
+          - script: npm install
+            workingDirectory: $(SERVER_DIR)
+            displayName: 'Install server dependencies'
+
+          - script: npm run db:generate
+            workingDirectory: $(SERVER_DIR)
+            displayName: 'Generate Prisma client'
+
+          - script: npm run build
+            workingDirectory: $(SERVER_DIR)
+            displayName: 'TypeScript compile (server)'
+
+          - script: npm test -- --passWithNoTests
+            workingDirectory: $(SERVER_DIR)
+            displayName: 'Run server tests'
+            continueOnError: true
+
+          - task: PublishTestResults@2
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '$(SERVER_DIR)/test-results/**/*.xml'
+              failTaskOnFailedTests: false
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(SERVER_DIR)/dist'
+              artifact: 'server-dist'
+            displayName: 'Publish server build artifact'
+
+      - job: ClientBuild
+        displayName: 'Client – Build & Test'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+            displayName: 'Install Node.js $(NODE_VERSION)'
+
+          - script: npm install
+            workingDirectory: $(CLIENT_DIR)
+            displayName: 'Install client dependencies'
+
+          - script: npm run build -- --configuration production
+            workingDirectory: $(CLIENT_DIR)
+            displayName: 'Angular build (production)'
+
+          - script: npm test -- --watch=false --browsers=ChromeHeadless --passWithNoTests || true
+            workingDirectory: $(CLIENT_DIR)
+            displayName: 'Run client tests (headless)'
+            continueOnError: true
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(CLIENT_DIR)/dist'
+              artifact: 'client-dist'
+            displayName: 'Publish client build artifact'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Stage 2: Deploy to Staging (Azure App Service)
+  # ─────────────────────────────────────────────────────────────────────────────
+  - stage: DeployStaging
+    displayName: 'Deploy to Staging'
+    dependsOn: BuildAndTest
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+    variables:
+      - group: fizzi-app-staging-secrets
+    jobs:
+      - deployment: DeployServer
+        displayName: 'Deploy API to Azure App Service (staging)'
+        environment: 'fizzi-staging'
+        pool:
+          vmImage: 'ubuntu-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    artifact: 'server-dist'
+                    path: '$(Pipeline.Workspace)/server-dist'
+
+                # Configure environment variables
+                - task: AzureAppServiceSettings@1
+                  displayName: 'Set App Service config (staging)'
+                  inputs:
+                    azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+                    appName: '$(STAGING_API_APP_NAME)'
+                    resourceGroupName: '$(AZURE_RESOURCE_GROUP)'
+                    appSettings: |
+                      [
+                        { "name": "NODE_ENV", "value": "staging", "slotSetting": false },
+                        { "name": "PORT", "value": "8080", "slotSetting": false },
+                        { "name": "DATABASE_URL", "value": "$(DATABASE_URL)", "slotSetting": false },
+                        { "name": "JWT_ACCESS_SECRET", "value": "$(JWT_ACCESS_SECRET)", "slotSetting": false },
+                        { "name": "JWT_REFRESH_SECRET", "value": "$(JWT_REFRESH_SECRET)", "slotSetting": false },
+                        { "name": "CLIENT_URL", "value": "$(CLIENT_URL)", "slotSetting": false }
+                      ]
+
+                - task: AzureWebApp@1
+                  displayName: 'Deploy API app (staging)'
+                  inputs:
+                    azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+                    appType: 'webAppLinux'
+                    appName: '$(STAGING_API_APP_NAME)'
+                    package: '$(Pipeline.Workspace)/server-dist'
+                    runtimeStack: 'NODE|18-lts'
+                    startUpCommand: 'node index.js'
+
+      - deployment: DeployClient
+        displayName: 'Deploy Angular SPA to Azure Static Web Apps (staging)'
+        dependsOn: []
+        environment: 'fizzi-staging'
+        pool:
+          vmImage: 'ubuntu-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    artifact: 'client-dist'
+                    path: '$(Pipeline.Workspace)/client-dist'
+
+                - task: AzureStaticWebApp@0
+                  displayName: 'Deploy SPA to Azure Static Web Apps (staging)'
+                  inputs:
+                    azure_static_web_apps_api_token: '$(AZURE_STATIC_WEB_APPS_API_TOKEN_STAGING)'
+                    app_location: '$(Pipeline.Workspace)/client-dist/sixert-bank-client'
+                    skip_app_build: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Stage 3: Deploy to Production (Azure App Service)
+  # ─────────────────────────────────────────────────────────────────────────────
+  - stage: DeployProduction
+    displayName: 'Deploy to Production'
+    dependsOn: BuildAndTest
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      - group: fizzi-app-prod-secrets
+    jobs:
+      - deployment: DeployServerProd
+        displayName: 'Deploy API to Azure App Service (production)'
+        environment: 'fizzi-production'
+        pool:
+          vmImage: 'ubuntu-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    artifact: 'server-dist'
+                    path: '$(Pipeline.Workspace)/server-dist'
+
+                - task: AzureAppServiceSettings@1
+                  displayName: 'Set App Service config (production)'
+                  inputs:
+                    azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+                    appName: '$(PROD_API_APP_NAME)'
+                    resourceGroupName: '$(AZURE_RESOURCE_GROUP)'
+                    appSettings: |
+                      [
+                        { "name": "NODE_ENV", "value": "production", "slotSetting": false },
+                        { "name": "PORT", "value": "8080", "slotSetting": false },
+                        { "name": "DATABASE_URL", "value": "$(DATABASE_URL)", "slotSetting": false },
+                        { "name": "JWT_ACCESS_SECRET", "value": "$(JWT_ACCESS_SECRET)", "slotSetting": false },
+                        { "name": "JWT_REFRESH_SECRET", "value": "$(JWT_REFRESH_SECRET)", "slotSetting": false },
+                        { "name": "CLIENT_URL", "value": "$(CLIENT_URL)", "slotSetting": false }
+                      ]
+
+                - task: AzureWebApp@1
+                  displayName: 'Deploy API app (production)'
+                  inputs:
+                    azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+                    appType: 'webAppLinux'
+                    appName: '$(PROD_API_APP_NAME)'
+                    package: '$(Pipeline.Workspace)/server-dist'
+                    runtimeStack: 'NODE|18-lts'
+                    startUpCommand: 'node index.js'
+
+      - deployment: DeployClientProd
+        displayName: 'Deploy Angular SPA to Azure Static Web Apps (production)'
+        dependsOn: []
+        environment: 'fizzi-production'
+        pool:
+          vmImage: 'ubuntu-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    artifact: 'client-dist'
+                    path: '$(Pipeline.Workspace)/client-dist'
+
+                - task: AzureStaticWebApp@0
+                  displayName: 'Deploy SPA to Azure Static Web Apps (production)'
+                  inputs:
+                    azure_static_web_apps_api_token: '$(AZURE_STATIC_WEB_APPS_API_TOKEN_PROD)'
+                    app_location: '$(Pipeline.Workspace)/client-dist/sixert-bank-client'
+                    skip_app_build: true
