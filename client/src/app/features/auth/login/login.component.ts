@@ -17,120 +17,153 @@ import { HttpErrorResponse } from '@angular/common/http';
   imports: [ReactiveFormsModule, NgIf, NgFor],
   template: `
     <div class="login-page" role="main">
-      <div class="login-card">
-        <div class="login-header">
-          <span class="login-logo">⬡</span>
-          <h1 class="login-title">Fizzi Challenger Bank</h1>
-          <p class="login-subtitle">Sign in to your account</p>
-        </div>
-
-        <div class="alert alert-error" *ngIf="errorMsg" role="alert" aria-live="assertive">
-          <span>⚠</span> {{ errorMsg }}
-        </div>
-
-        <div class="demo-credentials" *ngIf="showTestCredentials">
-          <p class="demo-credentials__title">Local test credentials</p>
-          <div class="demo-credentials__row" *ngFor="let cred of demoCredentials">
-            <span class="demo-credentials__username">{{ cred.username }}</span>
-            <span class="demo-credentials__password">{{ cred.password }}</span>
-            <span class="demo-credentials__note">{{ cred.note }}</span>
+      <!-- Left brand panel -->
+      <div class="login-brand" aria-hidden="true">
+        <div class="brand-content">
+          <div class="brand-logo-wrap">
+            <svg width="56" height="56" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="10" fill="white" fill-opacity="0.15"/>
+              <path d="M20 8L32 14V16H8V14L20 8Z" fill="white"/>
+              <rect x="10" y="18" width="4" height="10" fill="white"/>
+              <rect x="18" y="18" width="4" height="10" fill="white"/>
+              <rect x="26" y="18" width="4" height="10" fill="white"/>
+              <rect x="8" y="30" width="24" height="2" fill="white"/>
+            </svg>
           </div>
+          <h2 class="brand-name">Fizzi Challenger Bank</h2>
+          <p class="brand-tagline">Secure. Modern. Built for you.</p>
         </div>
+      </div>
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-          <div class="form-group">
-            <label for="identifier" class="form-label">Username or Email</label>
-            <input
-              id="identifier"
-              type="text"
-              formControlName="identifier"
-              class="form-control"
-              [class.is-invalid]="isFieldInvalid('identifier')"
-              autocomplete="username"
-              aria-required="true"
-              [attr.aria-describedby]="isFieldInvalid('identifier') ? 'identifier-error' : null"
-              placeholder="Enter username or email"
-            />
-            <span
-              id="identifier-error"
-              class="form-error"
-              *ngIf="isFieldInvalid('identifier')"
-              role="alert"
+      <!-- Right form panel -->
+      <div class="login-form-panel">
+        <div class="login-form-inner">
+          <div class="login-header">
+            <div class="login-logo-row">
+              <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect width="40" height="40" rx="10" fill="#003087"/>
+                <path d="M20 8L32 14V16H8V14L20 8Z" fill="white"/>
+                <rect x="10" y="18" width="4" height="10" fill="white"/>
+                <rect x="18" y="18" width="4" height="10" fill="white"/>
+                <rect x="26" y="18" width="4" height="10" fill="white"/>
+                <rect x="8" y="30" width="24" height="2" fill="white"/>
+              </svg>
+              <span class="login-logo-text">Fizzi Challenger Bank</span>
+            </div>
+            <h1 class="login-title">Sign in to your account</h1>
+          </div>
+
+          <div class="alert-error-accent" *ngIf="errorMsg" role="alert" aria-live="assertive">
+            <span>⚠</span> {{ errorMsg }}
+          </div>
+
+          <div class="demo-credentials" *ngIf="showTestCredentials">
+            <p class="demo-credentials__title">Local test credentials</p>
+            <div class="demo-credentials__row" *ngFor="let cred of demoCredentials">
+              <span class="demo-credentials__username">{{ cred.username }}</span>
+              <span class="demo-credentials__password">{{ cred.password }}</span>
+              <span class="demo-credentials__note">{{ cred.note }}</span>
+            </div>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+            <div class="form-group">
+              <label for="identifier" class="form-label">Username or Email</label>
+              <input
+                id="identifier"
+                type="text"
+                formControlName="identifier"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('identifier')"
+                autocomplete="username"
+                aria-required="true"
+                [attr.aria-describedby]="isFieldInvalid('identifier') ? 'identifier-error' : null"
+                placeholder="Enter username or email"
+              />
+              <span
+                id="identifier-error"
+                class="form-error"
+                *ngIf="isFieldInvalid('identifier')"
+                role="alert"
+              >
+                Username or email is required.
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="password" class="form-label">Password</label>
+              <input
+                id="password"
+                type="password"
+                formControlName="password"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('password')"
+                autocomplete="current-password"
+                aria-required="true"
+                [attr.aria-describedby]="isFieldInvalid('password') ? 'password-error' : null"
+                placeholder="Enter password"
+              />
+              <span
+                id="password-error"
+                class="form-error"
+                *ngIf="isFieldInvalid('password')"
+                role="alert"
+              >
+                Password is required.
+              </span>
+            </div>
+
+            <!-- MFA placeholder -->
+            <div class="mfa-placeholder" *ngIf="mfaRequired">
+              <div class="mfa-header">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 1L16 4V9C16 13 9 17 9 17C9 17 2 13 2 9V4L9 1Z" stroke="#003087" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                <span class="mfa-title">Two-step verification</span>
+              </div>
+              <p class="form-hint">Enter the 6-digit code from your authenticator app.</p>
+              <input
+                id="mfa"
+                type="text"
+                class="form-control"
+                inputmode="numeric"
+                maxlength="6"
+                autocomplete="one-time-code"
+                placeholder="6-digit code"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn-signin"
+              [disabled]="loading"
+              aria-label="Sign in"
             >
-              Username or email is required.
-            </span>
-          </div>
+              <span class="spinner" *ngIf="loading" aria-hidden="true"></span>
+              {{ loading ? 'Signing in…' : 'Sign in' }}
+            </button>
+          </form>
 
-          <div class="form-group">
-            <label for="password" class="form-label">Password</label>
-            <input
-              id="password"
-              type="password"
-              formControlName="password"
-              class="form-control"
-              [class.is-invalid]="isFieldInvalid('password')"
-              autocomplete="current-password"
-              aria-required="true"
-              [attr.aria-describedby]="isFieldInvalid('password') ? 'password-error' : null"
-              placeholder="Enter password"
-            />
-            <span
-              id="password-error"
-              class="form-error"
-              *ngIf="isFieldInvalid('password')"
-              role="alert"
+          <div class="login-links">
+            <button
+              type="button"
+              class="link-btn"
+              (click)="onForgotPassword()"
+              [disabled]="forgotLoading"
             >
-              Password is required.
-            </span>
+              Forgot Password?
+            </button>
+            <button
+              type="button"
+              class="link-btn"
+              (click)="onForgotUsername()"
+              [disabled]="forgotLoading"
+            >
+              Forgot Username?
+            </button>
           </div>
 
-          <!-- MFA placeholder -->
-          <div class="mfa-placeholder" *ngIf="mfaRequired">
-            <p class="form-hint">🔐 Two-step verification required. Enter your code:</p>
-            <input
-              id="mfa"
-              type="text"
-              class="form-control"
-              inputmode="numeric"
-              maxlength="6"
-              autocomplete="one-time-code"
-              placeholder="6-digit code"
-            />
+          <div class="alert alert-success" *ngIf="forgotMsg" role="status" aria-live="polite">
+            {{ forgotMsg }}
           </div>
-
-          <button
-            type="submit"
-            class="btn btn-primary btn-full"
-            [disabled]="loading"
-            aria-label="Sign in"
-          >
-            <span class="spinner" *ngIf="loading" aria-hidden="true"></span>
-            {{ loading ? 'Signing in…' : 'Sign in' }}
-          </button>
-        </form>
-
-        <div class="login-links">
-          <button
-            type="button"
-            class="link-btn"
-            (click)="onForgotPassword()"
-            [disabled]="forgotLoading"
-          >
-            Forgot Password?
-          </button>
-          <span aria-hidden="true">·</span>
-          <button
-            type="button"
-            class="link-btn"
-            (click)="onForgotUsername()"
-            [disabled]="forgotLoading"
-          >
-            Forgot Username?
-          </button>
-        </div>
-
-        <div class="alert alert-success" *ngIf="forgotMsg" role="status" aria-live="polite">
-          {{ forgotMsg }}
         </div>
       </div>
     </div>
@@ -138,33 +171,83 @@ import { HttpErrorResponse } from '@angular/common/http';
   styles: [`
     .login-page {
       min-height: 100vh;
+      display: flex;
+    }
+    /* Left brand panel */
+    .login-brand {
+      flex: 0 0 420px;
+      background: #003087;
       display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, var(--color-primary) 0%, #0f3388 100%);
-      padding: 24px;
+      padding: 48px 40px;
     }
-    .login-card {
-      background: var(--color-white);
-      border-radius: var(--radius-xl);
-      padding: 40px;
-      width: 100%; max-width: 420px;
-      box-shadow: var(--shadow-lg);
+    .brand-content { text-align: center; color: #fff; }
+    .brand-logo-wrap { margin-bottom: 24px; display: flex; justify-content: center; }
+    .brand-name { font-size: 24px; font-weight: 700; margin: 0 0 10px; color: #fff; }
+    .brand-tagline { font-size: 15px; color: rgba(255,255,255,0.72); margin: 0; }
+
+    /* Right form panel */
+    .login-form-panel {
+      flex: 1;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      padding: 48px 40px;
     }
-    .login-header { text-align: center; margin-bottom: 32px; }
-    .login-logo { font-size: 48px; display: block; margin-bottom: 8px; }
-    .login-title { font-size: 24px; font-weight: 700; margin: 0 0 4px; color: var(--color-primary); }
-    .login-subtitle { font-size: 14px; color: var(--color-text-muted); margin: 0; }
+    .login-form-inner { width: 100%; max-width: 400px; }
+    .login-header { margin-bottom: 32px; }
+    .login-logo-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .login-logo-text { font-size: 17px; font-weight: 700; color: #003087; }
+    .login-title { font-size: 22px; font-weight: 700; margin: 0; color: #0d1b2a; }
+
+    .alert-error-accent {
+      background: #fdecea;
+      border-left: 4px solid #c0392b;
+      color: #c0392b;
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 14px;
+      display: flex; align-items: flex-start; gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .form-control {
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+    }
+    .form-control:focus {
+      border-color: #003087;
+      box-shadow: 0 0 0 3px rgba(0,48,135,.15);
+    }
+
+    .btn-signin {
+      width: 100%; height: 48px;
+      background: #003087; color: #fff;
+      border: none; border-radius: var(--radius-md);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 150ms ease;
+      margin-top: 4px;
+    }
+    .btn-signin:hover:not(:disabled) { background: #00256b; }
+    .btn-signin:disabled { opacity: .5; cursor: not-allowed; }
+
     .mfa-placeholder {
-      background: var(--color-primary-light); border: 1px solid #bfdbfe;
-      border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px;
+      background: var(--color-primary-light); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px;
     }
+    .mfa-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .mfa-title { font-size: 14px; font-weight: 600; color: #003087; }
+
     .login-links {
-      display: flex; align-items: center; justify-content: center;
-      gap: 8px; margin-top: 20px; font-size: 13px;
+      display: flex; flex-direction: column; gap: 6px;
+      margin-top: 20px; font-size: 13px;
     }
     .demo-credentials {
       margin: 0 0 16px;
       padding: 10px 12px;
-      border: 1px dashed var(--color-border, #d1d5db);
+      border: 1px dashed var(--color-border);
       border-radius: var(--radius-md);
       color: var(--color-text-muted);
       opacity: 0.9;
@@ -189,10 +272,17 @@ import { HttpErrorResponse } from '@angular/common/http';
     }
     .link-btn {
       background: none; border: none; padding: 0;
-      color: var(--color-primary); cursor: pointer; font-size: 13px;
+      color: #003087; cursor: pointer; font-size: 13px; text-align: left;
     }
     .link-btn:hover { text-decoration: underline; }
     .link-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* Mobile: stack columns */
+    @media (max-width: 768px) {
+      .login-page { flex-direction: column; }
+      .login-brand { flex: none; padding: 32px 24px; }
+      .login-form-panel { padding: 32px 24px; }
+    }
   `],
 })
 export class LoginComponent {

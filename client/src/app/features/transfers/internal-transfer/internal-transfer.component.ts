@@ -202,7 +202,11 @@ const differentAccountsValidator: ValidatorFn = (ctrl: AbstractControl) => {
 
     <!-- Step 3: Confirmation -->
     <div class="card confirm-card" *ngIf="step === 'confirm' && transferResult">
-      <div class="confirm-icon" aria-hidden="true">✅</div>
+      <div class="confirm-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 13l4 4L19 7" stroke="#00875a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
       <h2 class="confirm-title">Transfer Submitted!</h2>
       <p class="confirm-subtitle">Your transfer has been received and is being processed.</p>
 
@@ -233,40 +237,80 @@ const differentAccountsValidator: ValidatorFn = (ctrl: AbstractControl) => {
   `,
   styles: [`
     .back-link { margin-bottom: 16px; }
+
+    /* Stepper */
     .stepper {
       display: flex; align-items: center; gap: 0;
-      margin-bottom: 28px; background: var(--color-white);
-      border: 1px solid var(--color-border); border-radius: var(--radius-lg);
-      padding: 16px 24px;
+      margin-bottom: 28px; background: #fff;
+      border: 1px solid #dde3ed; border-radius: var(--radius-lg);
+      padding: 20px 28px;
     }
-    .step { display: flex; align-items: center; gap: 8px; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 6px; }
     .step-num {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: var(--color-bg); border: 2px solid var(--color-border);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #f5f7fa; border: 2px solid #dde3ed;
       display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 600; color: var(--color-text-muted);
+      font-size: 13px; font-weight: 600; color: #8b9ab0;
     }
-    .step.active .step-num { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
-    .step.done .step-num   { background: var(--color-success); border-color: var(--color-success); color: #fff; }
-    .step-label { font-size: 14px; font-weight: 500; color: var(--color-text-muted); }
-    .step.active .step-label { color: var(--color-primary); }
-    .step.done  .step-label  { color: var(--color-success); }
-    .step-line  { flex: 1; height: 2px; background: var(--color-border); margin: 0 8px; }
+    .step.active .step-num { background: #003087; border-color: #003087; color: #fff; }
+    .step.done .step-num   { background: #003087; border-color: #003087; color: #fff; }
+    .step-label { font-size: 12px; font-weight: 500; color: #8b9ab0; white-space: nowrap; }
+    .step.active .step-label { color: #003087; font-weight: 600; }
+    .step.done  .step-label  { color: #003087; }
+    .step-line  { flex: 1; height: 2px; background: #dde3ed; margin: 0 8px; margin-bottom: 18px; }
+    .step.done ~ .step-line { background: #003087; }
+
+    /* Form fields */
+    .form-control { padding: 14px 16px; border-radius: var(--radius-md); }
+    .form-control:focus { border-color: #003087; box-shadow: 0 0 0 3px rgba(0,48,135,.12); outline: none; }
+    .form-label { font-size: 13px; font-weight: 500; color: #5a6a7e; }
+    .form-hint { font-size: 12px; color: #5a6a7e; }
+
+    /* Amount input with $ prefix */
+    .amount-wrap { position: relative; }
+    .amount-prefix {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 15px; color: #5a6a7e; pointer-events: none;
+    }
+    .amount-input { padding-left: 28px; }
+
+    /* Memo char counter */
+    .memo-counter { font-size: 12px; color: #8b9ab0; text-align: right; margin-top: 4px; }
+
     .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
     .justify-center { justify-content: center; }
-    .review-heading { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
-    .review-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-    .review-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--color-border); }
+
+    /* Review */
+    .review-heading { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0d1b2a; }
+    .review-grid { display: flex; flex-direction: column; margin-bottom: 20px; }
+    .review-row {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 16px; min-height: 48px;
+      border-bottom: 1px solid #dde3ed; padding: 0 2px;
+    }
     .review-row:last-child { border-bottom: none; }
-    .review-label { font-size: 14px; color: var(--color-text-muted); }
-    .review-value { font-size: 15px; font-weight: 500; }
-    .fdic-notice { margin-top: 16px; }
-    .confirm-card { text-align: center; }
-    .confirm-icon { font-size: 56px; margin-bottom: 12px; }
-    .confirm-title { font-size: 22px; font-weight: 700; margin: 0 0 8px; }
-    .confirm-subtitle { font-size: 15px; color: var(--color-text-muted); margin-bottom: 24px; }
-    .confirm-details { text-align: left; max-width: 400px; margin: 0 auto 24px; }
+    .review-label { font-size: 14px; color: #5a6a7e; }
+    .review-value { font-size: 15px; font-weight: 500; color: #0d1b2a; }
+
+    /* Confirmation */
+    .confirm-card { text-align: center; padding: 48px 28px; }
+    .confirm-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: #e3f5ef; color: #00875a;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+    .confirm-title { font-size: 24px; font-weight: 700; margin: 0 0 8px; color: #0d1b2a; }
+    .confirm-subtitle { font-size: 14px; color: #5a6a7e; margin-bottom: 28px; }
+    .confirm-ref {
+      display: inline-block; background: #f5f7fa; border: 1px solid #dde3ed;
+      border-radius: var(--radius-sm); font-family: monospace; font-size: 13px;
+      padding: 4px 10px; color: #0d1b2a; margin-bottom: 8px;
+    }
+    .confirm-details { text-align: left; max-width: 420px; margin: 0 auto 32px; }
     .mono { font-family: monospace; font-size: 13px; }
+    .fdic-notice { margin-top: 16px; }
   `],
 })
 export class InternalTransferComponent implements OnInit {

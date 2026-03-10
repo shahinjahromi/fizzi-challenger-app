@@ -20,12 +20,6 @@ import { User } from '../../shared/models/user.model';
             Last login: {{ lastLogin | date:'medium' }}
           </p>
         </div>
-        <div class="quick-actions">
-          <button class="btn btn-primary btn-sm" routerLink="/move-money">Move Money</button>
-          <button class="btn btn-secondary btn-sm" routerLink="/statements">Statements</button>
-          <button class="btn btn-secondary btn-sm" routerLink="/move-money">Linked Accounts</button>
-          <button class="btn btn-ghost btn-sm" routerLink="/messages">Support</button>
-        </div>
       </div>
     </div>
 
@@ -44,15 +38,43 @@ import { User } from '../../shared/models/user.model';
       <div class="card summary-card">
         <div class="summary-label">Total Available Balance</div>
         <div class="summary-amount">{{ totalAvailable | currency:'USD' }}</div>
-        <div class="summary-current text-muted text-small">
-          Total Current: {{ totalCurrent | currency:'USD' }}
+        <div class="summary-current">
+          Total Current Balance: {{ totalCurrent | currency:'USD' }}
         </div>
+      </div>
+
+      <!-- Quick actions grid -->
+      <div class="quick-actions-grid">
+        <button class="qa-card" type="button" routerLink="/move-money" aria-label="Move Money">
+          <span class="qa-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 18 18" fill="none"><path d="M3 9H15M15 9L11 5M15 9L11 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="qa-label">Move Money</span>
+        </button>
+        <button class="qa-card" type="button" routerLink="/statements" aria-label="Statements">
+          <span class="qa-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 18 18" fill="none"><rect x="3" y="1" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 6H12M6 9H12M6 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+          <span class="qa-label">Statements</span>
+        </button>
+        <button class="qa-card" type="button" routerLink="/move-money" aria-label="Linked Accounts">
+          <span class="qa-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 12L12 8M10 4H6a4 4 0 000 8h2M10 16h4a4 4 0 000-8h-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+          <span class="qa-label">Linked Accounts</span>
+        </button>
+        <button class="qa-card" type="button" routerLink="/messages" aria-label="Support">
+          <span class="qa-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0112 0" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="10" width="4" height="6" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="10" width="4" height="6" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="qa-label">Support</span>
+        </button>
       </div>
 
       <!-- Accounts -->
       <div class="card mt-24">
         <div class="accounts-header">
-          <h2 class="section-title">Accounts</h2>
+          <h2 class="section-title">Your Accounts</h2>
           <button
             type="button"
             class="btn btn-ghost btn-sm"
@@ -75,8 +97,9 @@ import { User } from '../../shared/models/user.model';
             </thead>
             <tbody>
               <tr
-                *ngFor="let acc of displayedAccounts"
+                *ngFor="let acc of displayedAccounts; let odd = odd"
                 class="account-row"
+                [class.row-alt]="odd"
                 [routerLink]="['/accounts', acc.id]"
                 tabindex="0"
                 (keydown.enter)="navigate(acc.id)"
@@ -84,15 +107,20 @@ import { User } from '../../shared/models/user.model';
                 [attr.aria-label]="acc.name + ' – ' + (acc.availableBalance | currency:'USD') + ' available'"
               >
                 <td>
-                  <div class="acc-name">{{ acc.name }}</div>
-                  <div class="acc-last4 text-muted text-small">••••{{ acc.last4 }}</div>
+                  <div class="acc-name-row">
+                    <span class="acc-name">{{ acc.name }}</span>
+                  <span *ngIf="!acc.isMoveMoneyEligible" class="ineligible-indicator" title="Not eligible for money movement" aria-label="Not eligible for money movement">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4 4l6 6M10 4l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </span>
+                  </div>
+                  <div class="acc-last4">••••{{ acc.last4 }}</div>
                 </td>
                 <td>{{ acc.type }}</td>
                 <td>
                   <span class="badge" [ngClass]="statusBadge(acc.status)">{{ acc.status }}</span>
                 </td>
                 <td class="text-right fw-600">{{ acc.availableBalance | currency:'USD' }}</td>
-                <td class="text-right text-muted">{{ acc.currentBalance | currency:'USD' }}</td>
+                <td class="text-right acc-current">{{ acc.currentBalance | currency:'USD' }}</td>
               </tr>
               <tr *ngIf="displayedAccounts.length === 0">
                 <td colspan="5" class="text-center text-muted" style="padding:32px">
@@ -109,16 +137,65 @@ import { User } from '../../shared/models/user.model';
     .welcome-row {
       display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px;
     }
-    .quick-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .loading-center { display: flex; justify-content: center; padding: 60px; }
-    .summary-card { margin-bottom: 0; }
-    .summary-label { font-size: 13px; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: .05em; }
-    .summary-amount { font-size: 36px; font-weight: 700; color: var(--color-primary); margin: 4px 0; }
+
+    /* Summary card */
+    .summary-card {
+      margin-bottom: 0;
+      border-left: 4px solid #003087;
+    }
+    .summary-label {
+      font-size: 11px; color: #5a6a7e;
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px;
+    }
+    .summary-amount { font-size: 32px; font-weight: 700; color: #003087; margin: 0 0 6px; }
+    .summary-current { font-size: 13px; color: #5a6a7e; }
+
+    /* Quick actions grid */
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .qa-card {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px;
+      width: 100%; aspect-ratio: 1;
+      max-height: 80px;
+      background: #fff; border: 1px solid #dde3ed;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+      padding: 12px 8px;
+    }
+    .qa-card:hover {
+      border-color: #003087;
+      box-shadow: var(--shadow-md);
+    }
+    .qa-icon {
+      display: flex; align-items: center; justify-content: center;
+      color: #003087;
+    }
+    .qa-label { font-size: 12px; font-weight: 500; color: #0d1b2a; text-align: center; }
+
     .mt-24 { margin-top: 24px; }
     .accounts-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .section-title { font-size: 16px; font-weight: 600; margin: 0; }
+
+    /* Account table overrides */
+    .table th {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+      font-weight: 600; color: #5a6a7e;
+    }
     .account-row { cursor: pointer; }
-    .acc-name { font-weight: 500; }
+    .row-alt td { background: #f5f7fa; }
+    .acc-name-row { display: flex; align-items: center; gap: 6px; }
+    .acc-name { font-weight: 600; }
+    .acc-last4 { font-size: 13px; color: #5a6a7e; font-family: ui-monospace, monospace; }
+    .acc-current { color: #5a6a7e; }
+    .ineligible-indicator { font-size: 13px; color: #b45309; }
+    .account-row:hover .row-chevron { opacity: 1; }
   `],
 })
 export class DashboardComponent implements OnInit {
