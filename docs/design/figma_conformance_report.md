@@ -1,7 +1,8 @@
 # Figma Design Conformance Report
 
-**Version:** v0.1.0  
+**Version:** v0.2.0  
 **Report date:** 2026-03-10  
+**Security fix:** Angular runtime on `19.2.x`; ZiFi design system tokens applied from Figma Inspect; all screens restyled to match OMB Future State Figma frames
 **Figma file:** OMB Future State  
 **Figma URL:** https://www.figma.com/design/6frH5xNjfyojd27BK3E07a/OMB-Future-State  
 **Requirements reviewed:** `docs/requirements/ui_contracts.md`, `docs/requirements/functional_requirements.md`  
@@ -265,3 +266,20 @@ Each approved Figma frame was reviewed against the corresponding Angular compone
 **Conformance result:** ✅ All in-scope screens conform to Figma design specs and `ui_contracts.md` requirements  
 **Deferred items:** 5 items pending external integration (Transmit, Mastercard Finicity) — not blocking  
 **Security fix:** Angular runtime upgraded from `17.3.x` to `19.2.19` (patches XSRF, XSS, i18n vulnerabilities)
+
+---
+
+## v0.2.0 Restyling Changes
+
+| Change | Details |
+|---|---|
+| ZiFi design tokens applied | `client/src/styles.css` `:root` variables updated to exact Figma colour/spacing/typography values |
+| Inter typeface | Google Fonts Inter (400/500/600/700) replaces `system-ui` |
+| Logo & icons | Emoji placeholders replaced with inline SVG assets matching Figma icon library |
+| Login split-layout | Two-column brand panel + form panel matching Figma `1082:21458` |
+| Dashboard quick-actions | 2×2 icon card grid replacing flat button row (Figma `6242:19969`) |
+| Move Money Hub | Card layout with left accent bar and icon circles matching Figma `293:17749` |
+| Internal Transfer stepper | Circle-step stepper with checkmarks matching Figma `228:14616`/`293:20409` |
+| Security Center rows | Icon circles + structured rows matching Figma `2034:46698` |
+| Footer FDIC badge | Bordered pill badge added (Figma `5775:31474`) |
+| Nav sidebar active state | Left border accent (not right) matching Figma sidebar pattern |
