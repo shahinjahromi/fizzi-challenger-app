@@ -4,6 +4,17 @@ Requirements changes follow a **PRD-first workflow**: edit `docs/Fizzi_Challenge
 
 ---
 
+## 2026-03-10  (Local auth + seed stability updates)
+- Added local login helper credentials UI on the sign-in screen (faded gray test credential list for localhost) to speed up QA/dev sign-in.
+- Improved login error handling to surface a clear API-unreachable message when the backend is not running.
+- Stabilized local auth under repeated sign-ins by generating unique refresh tokens (`jti`) per issuance to avoid token uniqueness collisions.
+- Updated rate limiter behavior for local/dev usage: auth limiter ignores successful logins and supports environment-driven limit tuning.
+- Hardened seed repeatability by clearing seedable tables first and using UUID workspace IDs compatible with route validation.
+
+Impacted requirement IDs: None (implementation/dev-experience and seed-data reliability updates; no requirement statement changes).
+
+---
+
 ## 2026-03-10  (Design linkage expansion)
 - Expanded approved Figma-to-requirement linkage coverage in design traceability artifacts.
 - Added concrete approved design anchors for Login, Loan Dashboard, Account Detail, Home, Privacy Statement, and Security Center.
