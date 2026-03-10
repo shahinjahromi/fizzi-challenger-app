@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { WorkspaceService } from '../../../core/services/workspace.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -14,7 +14,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'szb-login',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf],
+  imports: [ReactiveFormsModule, NgIf, NgFor],
   template: `
     <div class="login-page" role="main">
       <div class="login-card">
@@ -26,6 +26,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 
         <div class="alert alert-error" *ngIf="errorMsg" role="alert" aria-live="assertive">
           <span>⚠</span> {{ errorMsg }}
+        </div>
+
+        <div class="demo-credentials" *ngIf="showTestCredentials">
+          <p class="demo-credentials__title">Local test credentials</p>
+          <div class="demo-credentials__row" *ngFor="let cred of demoCredentials">
+            <span class="demo-credentials__username">{{ cred.username }}</span>
+            <span class="demo-credentials__password">{{ cred.password }}</span>
+            <span class="demo-credentials__note">{{ cred.note }}</span>
+          </div>
         </div>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
@@ -152,6 +161,32 @@ import { HttpErrorResponse } from '@angular/common/http';
       display: flex; align-items: center; justify-content: center;
       gap: 8px; margin-top: 20px; font-size: 13px;
     }
+    .demo-credentials {
+      margin: 0 0 16px;
+      padding: 10px 12px;
+      border: 1px dashed var(--color-border, #d1d5db);
+      border-radius: var(--radius-md);
+      color: var(--color-text-muted);
+      opacity: 0.9;
+      font-size: 12px;
+    }
+    .demo-credentials__title {
+      margin: 0 0 8px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .demo-credentials__row {
+      display: grid;
+      grid-template-columns: 72px 88px 1fr;
+      gap: 8px;
+      line-height: 1.35;
+      margin-bottom: 4px;
+    }
+    .demo-credentials__row:last-child { margin-bottom: 0; }
+    .demo-credentials__username,
+    .demo-credentials__password {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
     .link-btn {
       background: none; border: none; padding: 0;
       color: var(--color-primary); cursor: pointer; font-size: 13px;
@@ -161,6 +196,17 @@ import { HttpErrorResponse } from '@angular/common/http';
   `],
 })
 export class LoginComponent {
+  readonly showTestCredentials =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  readonly demoCredentials = [
+    { username: 'bob', password: 'demo1234', note: 'Single workspace flow' },
+    { username: 'alice', password: 'demo1234', note: 'Workspace selector flow' },
+    { username: 'carol', password: 'demo1234', note: 'Beta LLC test user' },
+    { username: 'dave', password: 'demo1234', note: 'Authorized user view' },
+  ];
+
   form: FormGroup;
   loading = false;
   forgotLoading = false;
@@ -213,7 +259,9 @@ export class LoginComponent {
       error: (err: unknown) => {
         this.loading = false;
         if (err instanceof HttpErrorResponse) {
-          if (err.status === 401 || err.status === 400) {
+          if (err.status === 0) {
+            this.errorMsg = 'Cannot reach the server. Start the API on port 4001 and try again.';
+          } else if (err.status === 401 || err.status === 400) {
             this.errorMsg = 'Invalid credentials. Please try again.';
           } else if (err.status === 429) {
             this.errorMsg = 'Too many attempts. Please wait before trying again.';

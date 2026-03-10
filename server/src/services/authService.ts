@@ -61,7 +61,7 @@ export async function login(input: LoginInput): Promise<LoginResult> {
 
   const tokenPayload = { sub: user.id, role: user.role, workspaceIds };
   const accessToken = signAccessToken(tokenPayload);
-  const refreshToken = signRefreshToken(tokenPayload);
+  const refreshToken = signRefreshToken({ ...tokenPayload, jti: uuidv4() });
 
   const refreshExpiry = new Date();
   refreshExpiry.setDate(refreshExpiry.getDate() + 7);
@@ -120,7 +120,7 @@ export async function refreshTokens(token: string): Promise<{ accessToken: strin
   const tokenPayload = { sub: payload.sub, role: payload.role, workspaceIds };
 
   const newAccessToken = signAccessToken(tokenPayload);
-  const newRefreshToken = signRefreshToken(tokenPayload);
+  const newRefreshToken = signRefreshToken({ ...tokenPayload, jti: uuidv4() });
 
   const refreshExpiry = new Date();
   refreshExpiry.setDate(refreshExpiry.getDate() + 7);

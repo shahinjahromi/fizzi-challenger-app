@@ -5,6 +5,7 @@ export interface TokenPayload {
   sub: string;
   role: string;
   workspaceIds: string[];
+  jti?: string;
   type: 'access' | 'refresh';
 }
 

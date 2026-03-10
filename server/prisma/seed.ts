@@ -4,8 +4,36 @@ import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
+const WORKSPACE_IDS = {
+  acme: '11111111-1111-4111-8111-111111111111',
+  beta: '22222222-2222-4222-8222-222222222222',
+} as const;
+
 async function main() {
   console.log('Seeding database...');
+
+  await prisma.$transaction([
+    prisma.refreshToken.deleteMany(),
+    prisma.auditEvent.deleteMany(),
+    prisma.notification.deleteMany(),
+    prisma.message.deleteMany(),
+    prisma.messageThread.deleteMany(),
+    prisma.statement.deleteMany(),
+    prisma.transaction.deleteMany(),
+    prisma.achConsent.deleteMany(),
+    prisma.achTransfer.deleteMany(),
+    prisma.internalTransfer.deleteMany(),
+    prisma.externalAccount.deleteMany(),
+    prisma.limitDecision.deleteMany(),
+    prisma.limitAssignment.deleteMany(),
+    prisma.account.deleteMany(),
+    prisma.workspaceMembership.deleteMany(),
+    prisma.workspace.deleteMany(),
+    prisma.user.deleteMany(),
+    prisma.limitTier.deleteMany(),
+  ]);
+
+  console.log('Existing seedable data cleared.');
 
   // ------- Limit Tiers -------
   const tierDefs = [
@@ -112,16 +140,14 @@ async function main() {
 
   // ------- Workspaces -------
   const workspaceDefs = [
-    { name: 'Acme Corp' },
-    { name: 'Beta LLC' },
+    { id: WORKSPACE_IDS.acme, name: 'Acme Corp' },
+    { id: WORKSPACE_IDS.beta, name: 'Beta LLC' },
   ];
 
   const workspaces: Record<string, string> = {};
   for (const w of workspaceDefs) {
-    const ws = await prisma.workspace.upsert({
-      where: { id: w.name === 'Acme Corp' ? 'acme-corp-id' : 'beta-llc-id' },
-      update: {},
-      create: { id: w.name === 'Acme Corp' ? 'acme-corp-id' : 'beta-llc-id', name: w.name },
+    const ws = await prisma.workspace.create({
+      data: { id: w.id, name: w.name },
     });
     workspaces[w.name] = ws.id;
   }
