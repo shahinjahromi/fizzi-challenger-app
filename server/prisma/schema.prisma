@@ -1,0 +1,420 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PrimaryAdmin
+  AuthorizedUser
+}
+
+enum AccountType {
+  Checking
+  Savings
+}
+
+enum AccountStatus {
+  Active
+  Frozen
+  Closed
+}
+
+enum TransactionDirection {
+  Credit
+  Debit
+}
+
+enum TransactionStatus {
+  Pending
+  Posted
+  Returned
+  Cancelled
+}
+
+enum TransferStatus {
+  Pending
+  Settled
+  Failed
+  Cancelled
+  Returned
+}
+
+enum AchDirection {
+  Credit
+  Debit
+}
+
+enum ExternalAccountStatus {
+  Linked
+  Unlinked
+  PendingVerification
+}
+
+enum LimitSubjectType {
+  User
+  Account
+  Workspace
+}
+
+enum LimitOutcome {
+  Allowed
+  Blocked
+}
+
+enum TransferType {
+  Internal
+  ACH
+}
+
+enum AuditEventType {
+  LOGIN
+  LOGOUT
+  PASSWORD_RESET_REQUEST
+  USERNAME_RECOVERY_REQUEST
+  WORKSPACE_SWITCH
+  TRANSFER_SUBMITTED
+  ACH_SUBMITTED
+  CONSENT_CAPTURED
+  LIMIT_OVERRIDE
+  LIMIT_DECISION
+  STATEMENT_DOWNLOAD
+}
+
+model User {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  username         String    @unique
+  passwordHash     String
+  role             UserRole  @default(AuthorizedUser)
+  lastLoginAt      DateTime?
+  tenureStartDate  DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+
+  workspaceMemberships WorkspaceMembership[]
+  externalAccounts     ExternalAccount[]
+  achConsents          AchConsent[]
+  notifications        Notification[]
+  auditEvents          AuditEvent[]
+  refreshTokens        RefreshToken[]
+  limitAssignments     LimitAssignment[]     @relation("UserLimitAssignments")
+  limitDecisions       LimitDecision[]
+
+  @@map("users")
+}
+
+model Workspace {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  memberships       WorkspaceMembership[]
+  accounts          Account[]
+  internalTransfers InternalTransfer[]
+  achTransfers      AchTransfer[]
+  externalAccounts  ExternalAccount[]
+  messageThreads    MessageThread[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMembership {
+  id          String   @id @default(uuid())
+  userId      String
+  workspaceId String
+  role        UserRole @default(AuthorizedUser)
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@map("workspace_memberships")
+}
+
+model Account {
+  id                   String        @id @default(uuid())
+  workspaceId          String
+  name                 String
+  accountNumber        String        @unique
+  routingNumber        String
+  type                 AccountType
+  availableBalance     Decimal       @default(0) @db.Decimal(18, 2)
+  currentBalance       Decimal       @default(0) @db.Decimal(18, 2)
+  interestRate         Decimal       @default(0) @db.Decimal(8, 6)
+  interestEarned       Decimal       @default(0) @db.Decimal(18, 2)
+  isMoveMoneyEligible  Boolean       @default(true)
+  status               AccountStatus @default(Active)
+  isClosed             Boolean       @default(false)
+  createdAt            DateTime      @default(now())
+
+  workspace          Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  transactions       Transaction[]
+  statements         Statement[]
+  fromTransfers      InternalTransfer[] @relation("FromAccount")
+  toTransfers        InternalTransfer[] @relation("ToAccount")
+  achTransfers       AchTransfer[]
+  limitAssignments   LimitAssignment[]  @relation("AccountLimitAssignments")
+  limitDecisionsSubj LimitDecision[]
+
+  @@map("accounts")
+}
+
+model Transaction {
+  id          String               @id @default(uuid())
+  accountId   String
+  createdAt   DateTime             @default(now())
+  postedAt    DateTime?
+  amount      Decimal              @db.Decimal(18, 2)
+  currency    String               @default("USD")
+  direction   TransactionDirection
+  status      TransactionStatus    @default(Pending)
+  description String
+  counterpart String?
+  referenceId String?
+  transferId  String?
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, postedAt(sort: Desc)])
+  @@index([accountId, createdAt(sort: Desc)])
+  @@map("transactions")
+}
+
+model InternalTransfer {
+  id                     String         @id @default(uuid())
+  workspaceId            String
+  fromAccountId          String
+  toAccountId            String
+  amount                 Decimal        @db.Decimal(18, 2)
+  memo                   String?
+  status                 TransferStatus @default(Pending)
+  referenceId            String         @unique @default(uuid())
+  effectiveDate          DateTime
+  cutoffApplied          Boolean        @default(false)
+  idempotencyKey         String         @unique
+  limitDecisionId        String?
+  requestedExecutionDate DateTime?
+  createdAt              DateTime       @default(now())
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  fromAccount Account   @relation("FromAccount", fields: [fromAccountId], references: [id])
+  toAccount   Account   @relation("ToAccount", fields: [toAccountId], references: [id])
+
+  @@map("internal_transfers")
+}
+
+model AchTransfer {
+  id                  String         @id @default(uuid())
+  workspaceId         String
+  direction           AchDirection
+  fromAccountId       String
+  toExternalAccountId String
+  amount              Decimal        @db.Decimal(18, 2)
+  status              TransferStatus @default(Pending)
+  referenceId         String         @unique @default(uuid())
+  effectiveDate       DateTime
+  isSameDay           Boolean        @default(false)
+  isConsumerDebit     Boolean        @default(false)
+  consentId           String?
+  idempotencyKey      String         @unique
+  limitDecisionId     String?
+  createdAt           DateTime       @default(now())
+
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id])
+  fromAccount     Account         @relation(fields: [fromAccountId], references: [id])
+  externalAccount ExternalAccount @relation(fields: [toExternalAccountId], references: [id])
+
+  @@map("ach_transfers")
+}
+
+model ExternalAccount {
+  id            String                @id @default(uuid())
+  userId        String
+  workspaceId   String
+  displayName   String
+  maskedAccount String
+  routingLast4  String
+  provider      String                @default("manual")
+  status        ExternalAccountStatus @default(Linked)
+  createdAt     DateTime              @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  achConsents AchConsent[]
+  achTransfers AchTransfer[]
+
+  @@map("external_accounts")
+}
+
+model AchConsent {
+  id                  String   @id @default(uuid())
+  userId              String
+  externalAccountId   String
+  consentedAt         DateTime @default(now())
+  consentIp           String
+  disclosuresVersion  String
+  artifacts           Json     @default("{}")
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  externalAccount ExternalAccount @relation(fields: [externalAccountId], references: [id])
+
+  @@map("ach_consents")
+}
+
+model Statement {
+  id          String   @id @default(uuid())
+  accountId   String
+  month       String   // e.g. "2024-03"
+  downloadUrl String
+  createdAt   DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, month])
+  @@map("statements")
+}
+
+model MessageThread {
+  id          String   @id @default(uuid())
+  workspaceId String
+  subject     String
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@map("message_threads")
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  threadId    String
+  fromDisplay String
+  body        String
+  isRead      Boolean  @default(false)
+  isDraft     Boolean  @default(false)
+  draftState  Json?
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  thread        MessageThread  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  notifications Notification[]
+
+  @@map("messages")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  threadId  String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message Message? @relation(fields: [threadId], references: [id])
+
+  @@map("notifications")
+}
+
+model LimitTier {
+  id                    String   @id @default(uuid())
+  name                  String   @unique
+  friendlyName          String
+  perTxnMax             Decimal  @db.Decimal(18, 2)
+  dailyCreditMax        Decimal  @db.Decimal(18, 2)
+  dailyDebitMax         Decimal  @db.Decimal(18, 2)
+  monthlyCreditMax      Decimal  @db.Decimal(18, 2)
+  monthlyDebitMax       Decimal  @db.Decimal(18, 2)
+  velocityMax           Decimal  @db.Decimal(18, 2)
+  velocityWindowMinutes Int
+  sameDayAchMax         Decimal  @db.Decimal(18, 2)
+  isActive              Boolean  @default(true)
+
+  assignments LimitAssignment[]
+
+  @@map("limit_tiers")
+}
+
+model LimitAssignment {
+  id              String           @id @default(uuid())
+  subjectType     LimitSubjectType
+  subjectId       String
+  tierId          String
+  effectiveFrom   DateTime         @default(now())
+  effectiveTo     DateTime?
+  overrideReason  String?
+  assignedBy      String?
+  createdAt       DateTime         @default(now())
+
+  tier    LimitTier @relation(fields: [tierId], references: [id])
+  user    User?     @relation("UserLimitAssignments", fields: [subjectId], references: [id], map: "limit_assignment_user_fk")
+  account Account?  @relation("AccountLimitAssignments", fields: [subjectId], references: [id], map: "limit_assignment_account_fk")
+
+  @@map("limit_assignments")
+}
+
+model LimitDecision {
+  id                        String       @id @default(uuid())
+  subjectUserId             String
+  subjectAccountId          String
+  appliedTierIds            String[]
+  appliedThresholdsSnapshot Json
+  evaluatedAt               DateTime     @default(now())
+  outcome                   LimitOutcome
+  blockReason               String?
+  transferType              TransferType
+  amount                    Decimal      @db.Decimal(18, 2)
+
+  user    User    @relation(fields: [subjectUserId], references: [id])
+  account Account @relation(fields: [subjectAccountId], references: [id])
+
+  @@map("limit_decisions")
+}
+
+model AuditEvent {
+  id            String         @id @default(uuid())
+  userId        String
+  eventType     AuditEventType
+  metadata      Json           @default("{}")
+  ipAddress     String?
+  userAgent     String?
+  correlationId String?
+  createdAt     DateTime       @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("audit_events")
+}
+
+model IdempotencyKey {
+  id           String   @id @default(uuid())
+  key          String   @unique
+  responseBody Json
+  statusCode   Int
+  createdAt    DateTime @default(now())
+
+  @@map("idempotency_keys")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@map("refresh_tokens")
+}
