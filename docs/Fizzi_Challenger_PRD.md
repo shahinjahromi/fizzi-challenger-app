@@ -5,7 +5,7 @@
 - **Phase 3 – iOS App**  
 **Audience:** PM, Design, Engineering, QA, Integrations  
 **Status:** Standalone (consolidated)  
-**Provenance:** Merged from Sixert ADO CSV exports (functional + defects) and DRyVE (ZiFi) backlog CSV. Contains business rules and acceptance criteria. Enhancement sections are explicitly labeled; DRyVE items are clearly marked.
+**Provenance:** Merged from Fizzi Challenger ADO CSV exports (functional + defects) and DRyVE (ZiFi) backlog CSV. Contains business rules and acceptance criteria. Enhancement sections are explicitly labeled; DRyVE items are clearly marked.
 
 **Revising this document:** Edit this PRD in human-friendly language first. Then add an entry to `docs/requirements/change_log.md` (summary + impacted requirement IDs) and have Cursor/Copilot update `docs/requirements/*` and `docs/traceability/traceability_matrix.csv`. Full steps: `docs/requirements/REQUIREMENTS_UPDATE_CHECKLIST.md`.
 
@@ -27,7 +27,7 @@ Unless otherwise noted, all requirements in this PRD are considered to apply to 
 ---
 
 ## 1. Purpose and Scope
-This document defines the human‑readable, end‑to‑end requirements for Sixert's small‑business online banking experience. It covers: Authentication, Workspaces, Accounts, Transactions, Money Movement (Internal + ACH), Statements, Messaging, Profile & Security Center, Notifications, and Limits & Approvals. Mobile‑specific items are included where explicitly stated.
+This document defines the human‑readable, end‑to‑end requirements for Fizzi Challenger's small‑business online banking experience. It covers: Authentication, Workspaces, Accounts, Transactions, Money Movement (Internal + ACH), Statements, Messaging, Profile & Security Center, Notifications, and Limits & Approvals. Mobile‑specific items are included where explicitly stated.
 
 This solution is implemented on top of the following external systems and services:
 - **Identity & Security (Auth, Password, Session):** implemented via Transmit Security Mosaic identity platform, integrating with Transmit’s APIs and journeys as documented in the [Transmit Security documentation](https://developer.transmitsecurity.com/). Username/password login, MFA, and recovery flows are orchestrated through Transmit.

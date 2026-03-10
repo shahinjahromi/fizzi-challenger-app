@@ -12,9 +12,9 @@ import { MessageService } from '../../core/services/message.service';
   template: `
     <header class="header" role="banner">
       <div class="header-inner">
-        <a routerLink="/dashboard" class="logo" aria-label="Sixert Bank – go to dashboard">
+        <a routerLink="/dashboard" class="logo" aria-label="Fizzi Challenger Bank – go to dashboard">
           <span class="logo-icon">⬡</span>
-          <span class="logo-text">Sixert Bank</span>
+          <span class="logo-text">Fizzi Challenger Bank</span>
         </a>
 
         <div class="header-center" *ngIf="currentWorkspace$ | async as ws">

@@ -1,7 +1,7 @@
 {
   "name": "fizzi-challenger-app",
   "version": "0.1.0",
-  "description": "Sixert Bank – Fizzi Challenger App (Angular + Node.js monorepo)",
+  "description": "Fizzi Challenger Bank – Fizzi Challenger App (Angular + Node.js monorepo)",
   "private": true,
   "engines": {
     "node": ">=18.0.0",

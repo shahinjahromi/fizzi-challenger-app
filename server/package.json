@@ -1,7 +1,7 @@
 {
-  "name": "sixert-bank-server",
+  "name": "fizzi-challenger-bank-server",
   "version": "0.1.0",
-  "description": "Sixert Bank API server",
+  "description": "Fizzi Challenger Bank API server",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

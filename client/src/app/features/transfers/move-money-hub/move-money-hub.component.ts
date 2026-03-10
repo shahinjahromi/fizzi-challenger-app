@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
       <a routerLink="/move-money/internal" class="hub-card" aria-label="Internal Transfer between your accounts">
         <div class="hub-icon">↔</div>
         <h2 class="hub-title">Internal Transfer</h2>
-        <p class="hub-desc">Move funds between your Sixert Bank accounts instantly.</p>
+        <p class="hub-desc">Move funds between your Fizzi Challenger Bank accounts instantly.</p>
         <span class="hub-arrow">Get started →</span>
       </a>
 

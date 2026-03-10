@@ -1,5 +1,5 @@
 # Azure Pipelines CI/CD Configuration
-# Fizzi Challenger App – Sixert Bank
+# Fizzi Challenger App – Fizzi Challenger Bank
 #
 # Supports two deployment targets:
 #   1. Local developer dev box (manual steps — see LOCAL_DEPLOY.md)
@@ -181,7 +181,7 @@ stages:
                   displayName: 'Deploy SPA to Azure Static Web Apps (staging)'
                   inputs:
                     azure_static_web_apps_api_token: '$(AZURE_STATIC_WEB_APPS_API_TOKEN_STAGING)'
-                    app_location: '$(Pipeline.Workspace)/client-dist/sixert-bank-client'
+                    app_location: '$(Pipeline.Workspace)/client-dist/fizzi-challenger-bank-client'
                     skip_app_build: true
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -253,5 +253,5 @@ stages:
                   displayName: 'Deploy SPA to Azure Static Web Apps (production)'
                   inputs:
                     azure_static_web_apps_api_token: '$(AZURE_STATIC_WEB_APPS_API_TOKEN_PROD)'
-                    app_location: '$(Pipeline.Workspace)/client-dist/sixert-bank-client'
+                    app_location: '$(Pipeline.Workspace)/client-dist/fizzi-challenger-bank-client'
                     skip_app_build: true

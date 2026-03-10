@@ -1,4 +1,4 @@
-# Deploy Sixert Bank to Vercel
+# Deploy Fizzi Challenger Bank to Vercel
 
 ## What’s configured
 
@@ -10,7 +10,7 @@
 
 1. **Connect the repo to Vercel**
    - Go to [vercel.com](https://vercel.com) → Add New → Project.
-   - Import **shahinjahromi/sixert_bank** from GitHub.
+   - Import **shahinjahromi/fizzi_challenger_bank** from GitHub.
    - Leave “Override” unchecked so it uses the repo’s `vercel.json`.
 
 2. **Set environment variables** (Project → Settings → Environment Variables)
@@ -29,7 +29,7 @@
 
 3. **Deploy**
    - Click Deploy. Vercel will run the build and deploy.
-   - After deploy, set **CLIENT_URL** to the URL Vercel gives you (e.g. `https://sixert-bank-xxx.vercel.app`) and redeploy if you changed it.
+   - After deploy, set **CLIENT_URL** to the URL Vercel gives you (e.g. `https://fizzi-challenger-bank-xxx.vercel.app`) and redeploy if you changed it.
 
 4. **Database**
    - Use a hosted Postgres (Neon, Vercel Postgres, Railway, etc.) and set `DATABASE_URL`.

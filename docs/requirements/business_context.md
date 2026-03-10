@@ -1,7 +1,7 @@
 # Business context
 
 ## Product purpose
-Sixert Bank is building a small-business online banking experience to attract deposits for the parent bank by offering a competitive high-yield savings rate, competitive SMB loan rates, and competitive payment processing rates.
+Fizzi Challenger Bank is building a small-business online banking experience to attract deposits for the parent bank by offering a competitive high-yield savings rate, competitive SMB loan rates, and competitive payment processing rates.
 
 ## Target customers
 - SMBs in US states where the parent bank does not have physical presence (all states west of Colorado).

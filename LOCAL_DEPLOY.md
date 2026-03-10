@@ -1,4 +1,4 @@
-# Deploy Sixert Bank on your local dev box
+# Deploy Fizzi Challenger Bank on your local dev box
 
 Run the full stack (Angular client + Node API + PostgreSQL) on your machine.
 
@@ -11,10 +11,10 @@ Run the full stack (Angular client + Node API + PostgreSQL) on your machine.
 
 ```bash
 # If using local Postgres (macOS Homebrew example):
-createdb sixert_bank
+createdb fizzi_challenger_bank
 
 # Or with psql:
-psql -U postgres -c "CREATE DATABASE sixert_bank;"
+psql -U postgres -c "CREATE DATABASE fizzi_challenger_bank;"
 ```
 
 Use the same user/host/port in `DATABASE_URL` in the next step.
@@ -22,7 +22,7 @@ Use the same user/host/port in `DATABASE_URL` in the next step.
 ## 2. Clone and install
 
 ```bash
-cd /path/to/sixert-bank
+cd /path/to/fizzi-challenger-bank
 npm install
 ```
 
@@ -35,7 +35,7 @@ cp .env.example .env
 
 Edit `server/.env`:
 
-- **DATABASE_URL** – e.g. `postgresql://YOUR_USER@localhost:5432/sixert_bank` (no password if local trust auth).
+- **DATABASE_URL** – e.g. `postgresql://YOUR_USER@localhost:5432/fizzi_challenger_bank` (no password if local trust auth).
 - **JWT_ACCESS_SECRET** / **JWT_REFRESH_SECRET** – set to at least 16 characters each.
 - **CLIENT_URL** – set to `http://localhost:4201` (client port).
 - **PORT** – `4001` (API port).
@@ -83,8 +83,8 @@ Open **http://localhost:4201** in your browser.
 ## One-time setup summary
 
 ```bash
-createdb sixert_bank
-cd /path/to/sixert-bank
+createdb fizzi_challenger_bank
+cd /path/to/fizzi-challenger-bank
 npm install
 cd server && cp .env.example .env
 # Edit .env (DATABASE_URL, JWT secrets, CLIENT_URL=http://localhost:4201)
