@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DatePipe, NgFor, NgIf, NgClass } from '@angular/common';
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from '../../../core/services/message.service';
 import { WorkspaceService } from '../../../core/services/workspace.service';
@@ -12,7 +12,7 @@ const MAX_BODY = 2000;
 @Component({
   selector: 'szb-thread',
   standalone: true,
-  imports: [NgFor, NgIf, NgClass, DatePipe, RouterLink, ReactiveFormsModule],
+  imports: [NgFor, NgIf, DatePipe, RouterLink, ReactiveFormsModule],
   template: `
     <div class="back-link">
       <a routerLink="/messages" class="btn btn-ghost btn-sm">← Back to Inbox</a>

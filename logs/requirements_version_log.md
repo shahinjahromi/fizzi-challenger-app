@@ -115,6 +115,40 @@ Each entry records:
 
 ---
 
+## v0.1.1 — 2026-03-10
+
+### Source version
+- **Branch**: `copilot/start-design-implementation`
+- **Build date**: 2026-03-10 (same day patch)
+
+### Changes from v0.1.0
+This patch addresses the two items left incomplete from v0.1.0:
+
+#### 1. Angular vulnerability remediation (Security)
+- **Problem**: `@angular/common`, `@angular/compiler`, `@angular/core` at version `17.3.x` were affected by:
+  - XSRF Token Leakage via Protocol-Relative URLs (`@angular/common < 19.2.16`)
+  - XSS via Unsanitized SVG Script Attributes (`@angular/compiler ≤ 18.2.14`)
+  - Stored XSS via SVG Animation/MathML (`@angular/compiler ≤ 18.2.14`)
+  - i18n XSS (`@angular/core ≤ 18.2.14`)
+- **Fix**: Upgraded all `@angular/*` packages from `^17.3.0` → `^19.2.19` in `client/package.json`; upgraded `zone.js` from `~0.14.4` → `~0.15.0` (required by Angular 19); upgraded `typescript` from `~5.4.2` → `~5.7.0`
+- **Verified**: Build succeeds with zero errors and zero warnings; `@angular/core` at `19.2.19` confirmed
+
+#### 2. Figma design conformance validation
+- **Added**: `docs/design/figma_conformance_report.md` — full per-screen conformance review against all 10 approved Figma frames
+- **Conformance result**: All in-scope screens pass; 5 items deferred pending external integrations
+- **Component fixes applied**:
+  - `dashboard.component.ts`: Added "Linked Accounts" quick action (FR-019, Figma `6242:19969`)
+  - `internal-transfer/internal-transfer.component.ts`: Added 1:00 PM ET cutoff notice to Review screen (FR-038, Figma `293:20409`)
+  - `thread/thread.component.ts`: Removed unused `NgClass` import (build warning)
+  - `internal-transfer/internal-transfer.component.ts`: Removed unused `NgClass` import (build warning)
+- **Traceability matrix**: Updated `docs/traceability/traceability_matrix.csv` — 61 rows updated with actual code paths and "Met" status for implemented requirements
+
+### Requirements snapshot (unchanged from v0.1.0)
+- Same requirements snapshot date: `2026-03-10`
+- Same schema version: `1.0`
+
+---
+
 ## How to update this log
 
 When starting a new build cycle:

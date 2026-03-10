@@ -4,7 +4,7 @@ import {
   FormBuilder, FormGroup, Validators, AbstractControl,
   ValidatorFn, ReactiveFormsModule,
 } from '@angular/forms';
-import { CurrencyPipe, DatePipe, NgFor, NgIf, NgClass } from '@angular/common';
+import { CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { AccountService } from '../../../core/services/account.service';
 import { TransferService } from '../../../core/services/transfer.service';
 import { WorkspaceService } from '../../../core/services/workspace.service';
@@ -23,7 +23,7 @@ const differentAccountsValidator: ValidatorFn = (ctrl: AbstractControl) => {
 @Component({
   selector: 'szb-internal-transfer',
   standalone: true,
-  imports: [ReactiveFormsModule, NgFor, NgIf, NgClass, CurrencyPipe, DatePipe, RouterLink],
+  imports: [ReactiveFormsModule, NgFor, NgIf, CurrencyPipe, DatePipe, RouterLink],
   template: `
     <div class="back-link">
       <a routerLink="/move-money" class="btn btn-ghost btn-sm">← Back</a>
@@ -176,6 +176,10 @@ const differentAccountsValidator: ValidatorFn = (ctrl: AbstractControl) => {
 
       <div class="alert alert-info fdic-notice" role="note">
         🏛 FDIC insured up to $250,000 per depositor. Transfers settle on the next available business day.
+      </div>
+
+      <div class="alert alert-warning cutoff-notice" role="note">
+        ⏰ Transfers submitted after <strong>1:00 PM ET</strong> will be posted the next business day.
       </div>
 
       <div class="alert alert-error" *ngIf="apiError" role="alert">

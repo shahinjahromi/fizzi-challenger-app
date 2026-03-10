@@ -23,6 +23,7 @@ import { User } from '../../shared/models/user.model';
         <div class="quick-actions">
           <button class="btn btn-primary btn-sm" routerLink="/move-money">Move Money</button>
           <button class="btn btn-secondary btn-sm" routerLink="/statements">Statements</button>
+          <button class="btn btn-secondary btn-sm" routerLink="/move-money">Linked Accounts</button>
           <button class="btn btn-ghost btn-sm" routerLink="/messages">Support</button>
         </div>
       </div>
