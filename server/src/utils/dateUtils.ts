@@ -1,3 +1,7 @@
+/**
+ * NOTE: The holiday list covers 2024–2025 Federal Reserve holidays and must be updated annually.
+ * In production, consider storing holidays in the database or using a dedicated holiday API.
+ */
 const HOLIDAYS = new Set([
   '2024-01-01', '2024-01-15', '2024-02-19', '2024-05-27',
   '2024-06-19', '2024-07-04', '2024-09-02', '2024-10-14',
@@ -26,7 +30,13 @@ export function nextBusinessDay(date: Date): Date {
   return next;
 }
 
-/** Returns true if the given UTC time is before 1:00 PM US/Eastern (UTC-5 or UTC-4 during DST) */
+/**
+ * Returns true if the given UTC time is before 1:00 PM US/Eastern.
+ *
+ * NOTE: This uses an approximation for DST transitions. In production,
+ * replace with a proper timezone library (e.g. 'luxon' or 'date-fns-tz')
+ * to guarantee accuracy for cutoff-sensitive banking operations.
+ */
 export function isBefore1PMET(date: Date): boolean {
   // Approximate EST/EDT offset — production would use a tz library
   const etOffsetHours = isEasternDST(date) ? -4 : -5;

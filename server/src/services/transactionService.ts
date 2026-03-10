@@ -35,12 +35,29 @@ export async function listTransactions(userId: string, accountId: string, query:
     where.description = { contains: query.search, mode: 'insensitive' };
   }
 
+  // Keyset/cursor pagination: find the anchor transaction and page from there
   if (query.cursor) {
     const cursorTx = await prisma.transaction.findUnique({ where: { id: query.cursor } });
     if (cursorTx) {
-      where.OR = [
-        { postedAt: { lt: cursorTx.postedAt ?? undefined }, createdAt: { lt: cursorTx.createdAt } },
-        { id: { not: query.cursor } },
+      const anchorPostedAt = cursorTx.postedAt ?? cursorTx.createdAt;
+      // Records strictly before the anchor row in (postedAt DESC, createdAt DESC, id ASC) order
+      where.AND = [
+        {
+          OR: [
+            { postedAt: { lt: anchorPostedAt } },
+            {
+              AND: [
+                { postedAt: anchorPostedAt },
+                {
+                  OR: [
+                    { createdAt: { lt: cursorTx.createdAt } },
+                    { AND: [{ createdAt: cursorTx.createdAt }, { id: { gt: cursorTx.id } }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       ];
     }
   }
