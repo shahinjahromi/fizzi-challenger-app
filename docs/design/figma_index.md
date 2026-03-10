@@ -43,6 +43,20 @@ Use it together with `docs/traceability/design_requirement_links.csv`:
 | External transfer / ACH entry | `§8. Money Movement – ACH (Inbound/Outbound)` | `FR-041`; `FR-042`; `FR-043`; `FR-044`; `FR-045`; `docs/requirements/ui_contracts.md` → `Money movement > ACH`; `docs/requirements/acceptance_tests.md` → `ACH` | Use `110:7409` as the concrete external-transfer form frame. |
 | Linked accounts management | `§8. Money Movement – ACH (Inbound/Outbound)` | `FR-046`; `docs/requirements/ui_contracts.md` → `Money movement > Move Money landing hub`; `docs/requirements/acceptance_tests.md` → `ACH` | Use `310:22432` for the linked-accounts list UI and `302:21650` as the larger parent screen containing the Manage Linked Accounts experience. |
 
+## Additional linkage expansion (non-Money-Movement)
+
+The following entries were added from non-`V1`/non-`Current`/non-`Graveyard` nodes when available.
+
+| Design scope | PRD/requirements linkage | Concrete node IDs | Status | Notes |
+|---|---|---|---|---|
+| Debit card management – lock card (single + multiple) | Unmapped to current repo requirements | `4331:50163`; `4331:50204`; `4331:50233` | Linked (provenance + concrete) | Frames are in the same Level 1 area as `4331:50291` and represent single-card lock flow, multi-card lock flow, and multi-card lock detail. |
+| Login experience | `docs/requirements/functional_requirements.md` → `Authentication & session` (`FR-001`…`FR-010`) | `1082:21458` | Linked | Approved login frame provided (`Desktop - 54`) with `Login Form` container and expected authentication UI blocks. |
+| Loan dashboard | `docs/requirements/ui_contracts.md` → `Dashboard / accounts overview` | `1001:78260` | Linked | Approved frame provided (`ZiFi Loan Dashboard`) covering loan overview, details, and payment history sections. |
+| Account detail | `docs/requirements/functional_requirements.md` → `Account details & activity` (`FR-023`…`FR-031`) | `2748:10682` | Linked | Approved account-detail anchor provided by product/design for account detail and transaction detail implementation scope. |
+| Home | `docs/requirements/functional_requirements.md` → `Accounts overview` (`FR-015`…`FR-022`) | `6242:19969` | Linked | Approved home frame verified as `ZiFi Main Landing (no carousel)`. |
+| Privacy statement | `docs/requirements/functional_requirements.md` → `Accounts overview` (`FR-022`) | `5775:31474` | Linked | Approved privacy-statement anchor provided by product/design for footer compliance-link implementation scope. |
+| Security center | `docs/requirements/functional_requirements.md` → `Profile & security center` (`FR-068`…`FR-074`) | `2034:46698` | Linked | Approved security-center frame verified as `ZiFi Security Center Landing`; includes the security-settings scope for Change Username Change Password 2-step verification methods and Trusted Devices. |
+
 ## Working rules
 
 1. Only link requirements to a Figma source once the file URL and root node are stable enough for reviewers to revisit.
