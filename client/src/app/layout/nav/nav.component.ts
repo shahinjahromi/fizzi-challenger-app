@@ -4,7 +4,7 @@ import { NgFor } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 interface NavItem {
-  label: string;
+  label: string;   // also used as key for icon lookup via getIcon()
   route: string;
 }
 

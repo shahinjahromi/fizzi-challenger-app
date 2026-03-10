@@ -109,7 +109,9 @@ import { User } from '../../shared/models/user.model';
                 <td>
                   <div class="acc-name-row">
                     <span class="acc-name">{{ acc.name }}</span>
-                    <span *ngIf="!acc.isMoveMoneyEligible" class="ineligible-indicator" title="Not eligible for money movement" aria-label="Not eligible for money movement">⊘</span>
+                  <span *ngIf="!acc.isMoveMoneyEligible" class="ineligible-indicator" title="Not eligible for money movement" aria-label="Not eligible for money movement">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4 4l6 6M10 4l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </span>
                   </div>
                   <div class="acc-last4">••••{{ acc.last4 }}</div>
                 </td>

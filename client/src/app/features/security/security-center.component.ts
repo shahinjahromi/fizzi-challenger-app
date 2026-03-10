@@ -134,6 +134,8 @@ import { ProfileService, SecurityCenter } from '../../core/services/profile.serv
   `,
   styles: [`
     .loading-center { display: flex; justify-content: center; padding: 60px; }
+    /* sec-card uses zero padding so row dividers extend full-width edge-to-edge;
+       each row has its own horizontal padding instead. */
     .sec-card { padding: 0; overflow: hidden; }
     .sec-row {
       display: flex; align-items: center; justify-content: space-between;
