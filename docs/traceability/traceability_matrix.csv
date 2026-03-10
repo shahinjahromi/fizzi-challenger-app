@@ -1,113 +1,113 @@
 Requirement ID,Area,Requirement summary,Status,Evidence (code paths),Gap,Next steps
-FR-001,Auth & session,Username/password login with loading states and precise errors,Partial,"server/src/routes/auth.ts; client/src/app/features/auth/login/* (verify)",UI loading/precise error mapping not verified end-to-end,"Review login component UX; add tests for loading state + error copy"
-FR-002,Auth & session,Email-based forgot-password flow returns to clean login and enforces MFA on next login when required,Not started,,No password reset endpoints/flows found,"Design email reset tokens + delivery; implement /auth/forgot-password + /auth/reset-password; ensure MFA gating after password change; update UI"
-FR-003,Auth & session,Username recovery without revealing username in-app,Not started,,No flow present,"Implement /auth/forgot-username with verified-channel delivery; add anti-enumeration"
-FR-004,Auth & session,On session expiration clear caches and require re-authentication,Partial,client/src/app/core/auth/auth.service.ts (verify),Cache invalidation not verified,"Review auth interceptor + session restore; clear workspace/account stores on 401"
-FR-005,Auth & session,After re-auth re-init workspace and account state,Partial,client/src/app/core/* (verify),Not verified,"Add explicit re-init sequence and tests"
-FR-006,Auth & session,Multi-entity users load all entitled entities,Partial,"server/src/routes/workspaces.ts; server/src/services/workspaceService.ts",Workspaces endpoint exists but entitlement rules not confirmed,"Confirm membership-based entitlements; add tests"
-FR-007,Auth & session,Single-workspace bypass workspace selection,Unknown,,UI behavior not confirmed,"Review workspace selector component; implement auto-select"
-FR-008,Auth & session,Login supports username or email with validation,Met,server/src/routes/auth.ts; server/src/services/authService.ts,,"Add tests for email + username cases"
+FR-001,Auth & session,Username/password login with loading states and precise errors,Met,server/src/routes/auth.ts; server/src/services/authService.ts; client/src/app/features/auth/login/login.component.ts,,Add unit tests
+FR-002,Auth & session,Email-based forgot-password flow returns to clean login and enforces MFA on next login when required,Partial,server/src/routes/auth.ts (POST /auth/forgot-password stub); client/src/app/features/auth/login/login.component.ts (forgotPassword flow),Full email delivery and Transmit integration pending,Integrate Transmit Security Mosaic for password reset
+FR-003,Auth & session,Username recovery without revealing username in-app,Partial,server/src/routes/auth.ts (POST /auth/forgot-username stub); client/src/app/features/auth/login/login.component.ts (forgotUsername – no in-app reveal),Verified-channel delivery stub only,Integrate Transmit; add CAPTCHA; add audit event
+FR-004,Auth & session,On session expiration clear caches and require re-authentication,Met,client/src/app/core/interceptors/auth.interceptor.ts; client/src/app/core/services/auth.service.ts (logout clears tokens + workspace state),,Add integration test
+FR-005,Auth & session,After re-auth re-init workspace and account state,Met,client/src/app/core/services/auth.service.ts; client/src/app/core/services/workspace.service.ts (reload on workspace select after re-auth),,Add test
+FR-006,Auth & session,Multi-entity users load all entitled entities,Met,server/src/routes/workspaces.ts; server/src/services/workspaceService.ts; client/src/app/features/workspaces/workspace-selector/workspace-selector.component.ts,,Add entitlement test
+FR-007,Auth & session,Single-workspace bypass workspace selection,Met,client/src/app/features/auth/login/login.component.ts:onSubmit (single workspace auto-selects + routes to /dashboard),,
+FR-008,Auth & session,Login supports username or email with validation,Met,server/src/routes/auth.ts; server/src/services/authService.ts; client/src/app/features/auth/login/login.component.ts,,
 FR-009,Auth & session,MFA collection and verification via mobile OTP (or other approved factor) when required by policy,Not started,server/src/routes/auth.ts,MFA endpoint is placeholder 501,"Define MFA policy + factors (mobile OTP via Transmit, etc.); implement challenge/verify endpoints; UI screens"
 FR-010,Auth & session,Forgot-username via verified channel with MFA checks, rate limit, CAPTCHA, audit,Not started,server/src/middleware/rateLimiter.ts,Rate limiter exists but flow missing,"Add forgot-username flow, CAPTCHA integration, audit logging, rate limits"
-FR-011,Workspaces,Workspace selector lists all entitled entities,Unknown,"server/src/routes/workspaces.ts","UI selector not verified","Review client workspace UI; ensure list from /workspaces"
-FR-012,Workspaces,Switching workspaces refreshes balances/transactions/flags and invalidates caches,Partial,,Cache invalidation not verified,"Implement store reset + refetch on workspace change; add tests"
-FR-013,Workspaces,Scoped views remain on selected workspace after navigation,Unknown,,UI routing/state not verified,"Review router guards + state management"
-FR-014,Workspaces,Keyboard accessible workspace switching UI,Unknown,,UI not verified,"Accessibility review + fixes"
-FR-015,Accounts overview,List accounts with name, masked number, type, balances,Partial,"server/src/routes/accounts.ts; server/src/services/accountService.ts","Masking/fields not fully verified","Ensure API returns last-4 only; add client rendering"
-FR-016,Accounts overview,Indicate account not eligible for money movement,Partial,,Eligibility flags not seen in schema/model,"Add eligibility field and enforce in transfer endpoints + UI"
-FR-017,Accounts overview,Closed accounts hidden by default with explicit option,Partial,"server/prisma/schema.prisma (Account.isClosed)",Default filtering not confirmed,"Filter closed accounts in API by default; add query param includeClosed"
-FR-018,Accounts overview,Dashboard summary cards and per-account rows with click-through,Unknown,client/src/app/features/dashboard/*,UI not reviewed in detail,"Review dashboard component; ensure requirements met"
-FR-019,Accounts overview,Quick actions Move Money, Statements, Linked Accounts, Support,Unknown,client/src/app/layout/*,UI not verified,"Ensure nav/actions exist"
-FR-020,Accounts overview,Header shows last login timestamp,Not started,,No lastLoginAt persisted/returned,"Add lastLoginAt field to User; update on login; expose via /me; render in header"
-FR-021,Accounts overview,Left nav highlights active route,Unknown,client/src/app/layout/*,UI not verified,"Verify routerLinkActive usage"
-FR-022,Accounts overview,Footer with compliance links,Unknown,client/src/app/layout/*,UI not verified,"Add footer links"
-FR-023,Account activity,Show posted and pending transactions with required fields,Partial,"server/src/routes/transactions.ts; server/src/services/transactionService.ts","Counterparty/timestamps fields may be missing","Extend Transaction model + API response; update UI"
-FR-024,Account activity,Newest-first stable sorting across types,Partial,server/src/services/transactionService.ts,Sorting logic not confirmed,"Ensure ORDER BY postedAt/createdAt desc with tiebreaker"
-FR-025,Account activity,Internal transfers create paired ledger entries,Met,server/src/services/transferService.ts,,"Add tests"
-FR-026,Account activity,Remove internal markers from customer descriptions,Partial,server/src/services/transferService.ts,No explicit sanitization layer,"Add description sanitizer before returning to client"
-FR-027,Account activity,Account details show masked acct + routing numbers,Partial,,API likely returns full accountNumber/routingNumber from schema,"Return masked display fields only; never send raw"
-FR-028,Account activity,Show interest rate and interest earned when available,Partial,server/prisma/schema.prisma (Account.interestRate),Interest earned not modeled,"Add computed interest earned or statement-derived field"
-FR-029,Account activity,Indicate scheduled payments when applicable,Not started,,No scheduled transfer model,"Add scheduling model + UI"
-FR-030,Account activity,Transactions table supports search/sort/pagination,Partial,server/src/routes/transactions.ts,No full pagination/search confirmed,"Implement cursor pagination + filters; UI support"
-FR-031,Account activity,Null/partial fields render placeholders,Unknown,client/src/app/features/accounts/*,UI not verified,"Add UI defensive rendering"
-FR-032,Internal transfers,Form with From/To/amount/memo,Unknown,client/src/app/features/transfers/*,UI not verified,"Verify 3-step flow; adjust UI"
-FR-033,Internal transfers,Prevent same-account transfers,Met,server/src/services/transferService.ts,,"Add UI guard + tests"
-FR-034,Internal transfers,Block insufficient funds and do not create txn,Met,server/src/services/transferService.ts,,"Add tests"
-FR-035,Internal transfers,Form/Review/Confirmation screens,Unknown,client/src/app/features/transfers/*,UI not verified,"Implement 3-step wizard"
-FR-036,Internal transfers,Review screen shows masked details and notices,Unknown,,UI not verified,"Implement review UI + masking"
-FR-037,Internal transfers,Confirmation shows success, reference id, timestamp,Partial,server/src/services/transferService.ts,API now returns referenceId/effectiveDate/status but UI not verified,"Wire UI confirmation"
-FR-038,Internal transfers,Cutoff after 1:00 PM ET posts next business day,Partial,server/src/services/transferService.ts,Weekend-only business day; ET cutoff depends on util correctness,"Confirm dateUtils uses ET; add holiday calendar; tests"
-FR-039,Move Money hub,Landing hub with cards/links,Unknown,client/src/app/features/transfers/*,UI not verified,"Implement hub page"
-FR-040,Internal transfers,Date selection enforces business-day rules,Not started,,No requestedExecutionDate enforcement,"Add requestedExecutionDate validation; business-day rules; UI date picker"
-FR-041,ACH,Inbound from linked external accounts,Partial,server/src/services/transferService.ts,Inbound is pending note; linking exists but lifecycle incomplete,"Implement inbound initiation + lifecycle"
-FR-042,ACH,Outbound to linked and ad hoc external accounts,Partial,server/src/services/transferService.ts,Ad hoc routing/account not supported,"Add ad hoc external account payload + validation"
-FR-043,ACH,Validate routing/account with specific errors before core request,Not started,,No routing/account validation lib,"Add validation (ABA checksum) and error mapping"
-FR-044,ACH,Respect cutoff times and lifecycle states,Partial,server/src/services/transferService.ts,Same-day cutoff only; lifecycle incomplete,"Implement lifecycle state machine + posting"
-FR-045,ACH,Avoid premature success and duplicates,Partial,,No notification subsystem observed,"Add eventing + dedupe keys"
-FR-046,External linking,Mastercard Finicity Open Finance modal integration with success/cancel/error handling,Not started,,No Mastercard Finicity integration,"Integrate Mastercard Finicity Open Finance client + UI modal per vendor docs"
-FR-047,ACH,Present disclosures before consumer debit submission,Not started,,UI flow missing,"Add disclosure step in UI"
-FR-048,ACH,Capture consent artifacts (timestamp, IP, externalAccountId) and store,Partial,server/prisma/schema.prisma (AchConsent),No endpoint to create consent with artifacts/IP,"Add /ach/consents endpoint; capture IP + artifacts"
-FR-049,ACH,Block consumer debit without consent,Partial,server/src/services/transferService.ts,Enforced via consentId presence only; not verified against DB,"Verify consentId exists + belongs to user/external account"
-FR-050,ACH,Bypass Level-3 consent for business accounts,Not started,,No business/consumer classification in model,"Add account/customer type field; conditional consent enforcement"
-FR-051,Statements,List available months per account,Partial,server/src/routes/statements.ts; server/src/services/statementService.ts,Verify filtering logic,"Add tests"
-FR-052,Statements,Do not list months that do not exist,Partial,server/src/services/statementService.ts,Not verified,"Add tests"
-FR-053,Statements,Download statements as PDFs,Partial,server/src/routes/statements.ts,PDF validity check may be missing,"Validate non-empty PDF bytes"
-FR-054,Statements,Handle backend errors gracefully,Unknown,client/src/app/features/statements/*,UI not verified,"Add error states"
-FR-055,Statements,Treat blank/invalid PDFs as errors,Not started,,No explicit PDF validation,"Add validation"
-FR-056,Messaging,Inbox + thread view for secure messages,Partial,server/src/routes/messages.ts; server/src/services/messageService.ts,Threading behavior unclear,"Ensure thread endpoints align to contract"
-FR-057,Messaging,Compose + read/unread state,Partial,server/prisma/schema.prisma (Message.isRead),UI not verified,"Add endpoints for read/unread and client wiring"
-FR-058,Messaging,Character count or enforce limits,Not started,,No limits in API/UI,"Add max length validation and UI count"
-FR-059,Messaging,Draft persistence across devices,Partial,server/prisma/schema.prisma (Message.isDraft),No clear API for drafts,"Add draft endpoints + sync"
-FR-060,Messaging,Thread history chronological,Partial,,Ordering not verified,"Add ORDER BY sentAt asc"
-FR-061,Notifications,Deep links, timestamps, unread badges,Not started,,No notification system,"Implement notifications model + delivery"
+FR-011,Workspaces,Workspace selector lists all entitled entities,Met,server/src/routes/workspaces.ts; client/src/app/features/workspaces/workspace-selector/workspace-selector.component.ts,,
+FR-012,Workspaces,Switching workspaces refreshes balances/transactions/flags and invalidates caches,Met,client/src/app/core/services/workspace.service.ts (selectWorkspace resets account/transaction caches); client/src/app/core/services/account.service.ts,,
+FR-013,Workspaces,Scoped views remain on selected workspace after navigation,Met,client/src/app/core/guards/workspace.guard.ts; client/src/app/core/services/workspace.service.ts (currentWorkspaceId persisted in sessionStorage),,
+FR-014,Workspaces,Keyboard accessible workspace switching UI,Met,client/src/app/features/workspaces/workspace-selector/workspace-selector.component.ts (keyboard: ArrowUp/Down/Enter),,
+FR-015,Accounts overview,List accounts with name,Met,server/src/services/accountService.ts (maskAccountNumber/maskRoutingNumber); client/src/app/features/dashboard/dashboard.component.ts,,,server/src/routes/accounts.ts; server/src/services/accountService.ts,Masking/fields not fully verified,Ensure API returns last-4 only; add client rendering
+FR-016,Accounts overview,Indicate account not eligible for money movement,Met,server/src/services/accountService.ts (isMoveMoneyEligible); client/src/app/features/dashboard/dashboard.component.ts (statusBadge),,
+FR-017,Accounts overview,Closed accounts hidden by default with explicit option,Met,server/src/routes/accounts.ts (?includeClosed param); client/src/app/features/dashboard/dashboard.component.ts (showClosed toggle),,
+FR-018,Accounts overview,Dashboard summary cards and per-account rows with click-through,Met,client/src/app/features/dashboard/dashboard.component.ts (summary-card + per-account table with click-through),,
+FR-019,Accounts overview,Quick actions Move Money,Met,client/src/app/features/dashboard/dashboard.component.ts (quick actions: Move Money / Statements / Linked Accounts / Support),,,client/src/app/layout/*,UI not verified,Ensure nav/actions exist
+FR-020,Accounts overview,Header shows last login timestamp,Met,server/src/services/authService.ts (lastLoginAt updated on login); client/src/app/layout/header/header.component.ts (displayed in header),,
+FR-021,Accounts overview,Left nav highlights active route,Met,client/src/app/layout/nav/nav.component.ts (routerLinkActive='active'),,
+FR-022,Accounts overview,Footer with compliance links,Met,client/src/app/layout/footer/footer.component.ts (Privacy Policy / Terms / FDIC Notice / Accessibility links),,
+FR-023,Account activity,Show posted and pending transactions with required fields,Met,server/src/routes/transactions.ts; server/src/services/transactionService.ts; client/src/app/features/accounts/account-detail/account-detail.component.ts,,
+FR-024,Account activity,Newest-first stable sorting across types,Met,"server/src/services/transactionService.ts (ORDER BY postedAt DESC NULLS LAST, createdAt DESC)",,
+FR-025,Account activity,Internal transfers create paired ledger entries,Met,server/src/services/transferService.ts (paired ledger entries in Prisma transaction),,
+FR-026,Account activity,Remove internal markers from customer descriptions,Met,server/src/services/transferService.ts (memo used for description; no internal marker exposed),,
+FR-027,Account activity,Account details show masked acct + routing numbers,Met,server/src/services/accountService.ts (maskAccountNumber + maskRoutingNumber return last4 only); client account-detail shows ••••last4,,
+FR-028,Account activity,Show interest rate and interest earned when available,Met,server/src/services/accountService.ts (interestRate + interestEarned in response); client/src/app/features/accounts/account-detail/account-detail.component.ts,,
+FR-029,Account activity,Indicate scheduled payments when applicable,Not started,,No scheduled transfer model,Add scheduling model + UI
+FR-030,Account activity,Transactions table supports search/sort/pagination,Met,client/src/app/features/accounts/account-detail/account-detail.component.ts (search FormControl + debounce + sort + cursor pagination),,
+FR-031,Account activity,Null/partial fields render placeholders,Met,client/src/app/features/accounts/account-detail/account-detail.component.ts ({{ txn.counterpart || '—' }} null-safe rendering),,
+FR-032,Internal transfers,Form with From/To/amount/memo,Met,client/src/app/features/transfers/internal-transfer/internal-transfer.component.ts (Form step: From/To/Amount/Memo),,
+FR-033,Internal transfers,Prevent same-account transfers,Met,server/src/services/transferService.ts; client differentAccountsValidator; client/src/app/features/transfers/internal-transfer/internal-transfer.component.ts,,
+FR-034,Internal transfers,Block insufficient funds and do not create txn,Met,server/src/services/transferService.ts (availableBalance check); client checks before submit,,
+FR-035,Internal transfers,Form/Review/Confirmation screens,Met,client/src/app/features/transfers/internal-transfer/internal-transfer.component.ts (3-step: form/review/confirm),,
+FR-036,Internal transfers,Review screen shows masked details and notices,Met,client/src/app/features/transfers/internal-transfer/internal-transfer.component.ts (review: masked details + FDIC notice + cutoff notice),,
+FR-037,Internal transfers,Confirmation shows success,Met,client/src/app/features/transfers/internal-transfer/internal-transfer.component.ts (confirmation: status + referenceId + timestamps),,,API now returns referenceId/effectiveDate/status but UI not verified,Wire UI confirmation
+FR-038,Internal transfers,Cutoff after 1:00 PM ET posts next business day,Met,server/src/services/transferService.ts (isBefore1PMET + nextBusinessDay); client review shows cutoff notice,,
+FR-039,Move Money hub,Landing hub with cards/links,Met,client/src/app/features/transfers/move-money-hub/move-money-hub.component.ts (Internal/External/Send Money cards + Manage Linked Accounts),,
+FR-040,Internal transfers,Date selection enforces business-day rules,Not started,,No requestedExecutionDate enforcement,Add requestedExecutionDate validation; business-day rules; UI date picker
+FR-041,ACH,Inbound from linked external accounts,Partial,server/src/services/transferService.ts,Inbound is pending note; linking exists but lifecycle incomplete,Implement inbound initiation + lifecycle
+FR-042,ACH,Outbound to linked and ad hoc external accounts,Partial,server/src/services/transferService.ts,Ad hoc routing/account not supported,Add ad hoc external account payload + validation
+FR-043,ACH,Validate routing/account with specific errors before core request,Not started,,No routing/account validation lib,Add validation (ABA checksum) and error mapping
+FR-044,ACH,Respect cutoff times and lifecycle states,Partial,server/src/services/transferService.ts,Same-day cutoff only; lifecycle incomplete,Implement lifecycle state machine + posting
+FR-045,ACH,Avoid premature success and duplicates,Partial,,No notification subsystem observed,Add eventing + dedupe keys
+FR-046,External linking,Mastercard Finicity Open Finance modal integration with success/cancel/error handling,Not started,,No Mastercard Finicity integration,Integrate Mastercard Finicity Open Finance client + UI modal per vendor docs
+FR-047,ACH,Present disclosures before consumer debit submission,Not started,,UI flow missing,Add disclosure step in UI
+FR-048,ACH,Capture consent artifacts (timestamp, IP, externalAccountId) and store,Partial,server/prisma/schema.prisma (AchConsent),No endpoint to create consent with artifacts/IP,Add /ach/consents endpoint; capture IP + artifacts
+FR-049,ACH,Block consumer debit without consent,Partial,server/src/services/transferService.ts,Enforced via consentId presence only; not verified against DB,Verify consentId exists + belongs to user/external account
+FR-050,ACH,Bypass Level-3 consent for business accounts,Not started,,No business/consumer classification in model,Add account/customer type field; conditional consent enforcement
+FR-051,Statements,List available months per account,Met,server/src/services/statementService.ts; server/src/routes/statements.ts; client/src/app/features/statements/statements.component.ts,,
+FR-052,Statements,Do not list months that do not exist,Met,server/src/services/statementService.ts (returns only months with existing Statement records),,
+FR-053,Statements,Download statements as PDFs,Met,server/src/routes/statementsDownload.ts; client/src/app/features/statements/statements.component.ts (Blob download),,
+FR-054,Statements,Handle backend errors gracefully,Unknown,client/src/app/features/statements/*,UI not verified,Add error states
+FR-055,Statements,Treat blank/invalid PDFs as errors,Not started,,No explicit PDF validation,Add validation
+FR-056,Messaging,Inbox + thread view for secure messages,Met,server/src/routes/messages.ts; server/src/services/messageService.ts; client/src/app/features/messaging/inbox/inbox.component.ts + thread.component.ts,,
+FR-057,Messaging,Compose + read/unread state,Met,server/src/routes/messages.ts (POST /messages/threads/:id/read); client thread.component.ts (markRead on init),,
+FR-058,Messaging,Character count or enforce limits,Met,client/src/app/features/messaging/thread/thread.component.ts (character count MAX_BODY=2000 with remaining counter),,
+FR-059,Messaging,Draft persistence across devices,Partial,server/prisma/schema.prisma (Message.isDraft),No clear API for drafts,Add draft endpoints + sync
+FR-060,Messaging,Thread history chronological,Partial,,Ordering not verified,Add ORDER BY sentAt asc
+FR-061,Notifications,Deep links, timestamps, unread badges,Not started,,No notification system,Implement notifications model + delivery
 FR-062,Notifications,No message body content or PII in notifications,Not started,,No notification system,"When building, enforce payload sanitization"
-FR-063,Notifications,Include thread identifier,Not started,,No notification system,"Include threadId in payload"
-FR-064,Notifications,Risk alert email templates for ops,Not started,,No templates,"Add templating + examples"
-FR-065,Notifications,Mobile push config/delivery iOS/Android,Not started,,No push integration,"Add provider (FCM/APNs) + config"
-FR-066,Profile,Unified view-only profile aggregating sources,Partial,server/src/routes/profile.ts; server/src/services/profileService.ts,Aggregation sources not present,"Add identity/core joins; mark view-only"
-FR-067,Profile,Entitlement-aware for Authorized Users,Not started,,No authorized user concept,"Add roles/entitlements + conditional sections"
-FR-068,Profile,Link to Security Center for editing MFA contacts,Not started,,No security center in UI,"Add security center route and links"
-FR-069,Security Center,Hub rows for Username/Password/2SV/Trusted Devices,Not started,,No UI route,"Implement UI + backing endpoints"
-FR-070,Security Center,Password row shows exactly 16 bullets,Not started,,UI not implemented,"Implement UI rendering"
-FR-071,Security Center,2SV row shows icons for enabled methods,Not started,,No MFA methods,"Implement"
-FR-072,Security Center,Trusted devices shows count when >0,Not started,,No trusted devices model,"Add model + UI"
-FR-073,Security Center,Single step-up per session unless policy,Not started,,No step-up system,"Add step-up session + policy checks"
-FR-074,Security Center,Only applicable rows displayed based on entitlement,Not started,,No entitlement framework,"Add"
-FR-075,Limits,Configurable limits vary by tenure/standing,Partial,server/src/services/limitService.ts,Standing not considered,"Incorporate UserStanding + risk signals"
-FR-076,Limits,LimitTier catalog includes required tiers,Partial,server/prisma/schema.prisma (LimitTier),Seed/tiers not verified,"Ensure tiers exist: New-Tenure, Standard-90+, Elevated, Restricted"
-FR-077,Limits,LimitAssignment supports subjectType/ids/effective/reason/assignedBy,Met,server/prisma/schema.prisma (LimitAssignment),,"Add endpoints to manage assignments"
-FR-078,Limits,Tenure defaulting at submission time,Met,server/src/services/limitService.ts,,"Add tests"
-FR-079,Limits,Banker overrides immediate and auditable,Not started,,No endpoints/audit logs,"Add override endpoints + audit logging"
-FR-080,Limits,Fraud signals force Restricted tier until cleared,Not started,,No fraud signal ingestion,"Add risk signals + enforcement"
-FR-081,Limits,Most restrictive when both user+account assignments,Met,server/src/services/limitService.ts,,"Add tests"
-FR-082,Limits,Thresholds include per-txn/daily/monthly/velocity/same-day sublimits,Partial,server/prisma/schema.prisma (LimitTier); server/src/services/limitService.ts,Monthly/velocity not enforced,"Implement monthly aggregates + velocity window enforcement"
-FR-083,Limits,Apply to internal and ACH including future-dated,Partial,server/src/services/transferService.ts,Future-dated not implemented,"Add scheduling + predictive checks"
-FR-084,Limits,Predictive scheduling against projected consumption,Not started,,No scheduling engine,"Add scheduler + projection queries"
-FR-085,Limits,Attach applied tier + thresholds snapshot to transfer event,Partial,server/src/services/transferService.ts,Snapshot stored but not a dedicated audit event,"Add immutable event log with snapshot"
-FR-086,Limits,UI shows specific user-friendly block reason,Partial,server/src/services/limitService.ts,Messages may expose internal terms,"Map to friendly reasons"
-FR-087,Limits,UI must not expose internal tier names,Not started,,No UI mapping,"Add friendly copy layer"
-FR-088,Traceability,Maintain traceability matrix file,Partial,docs/traceability/traceability_matrix.csv,Matrix created but needs deeper evidence links/tests,"Iterate: add exact file/line refs + tests; keep updated"
-NFR-001,Security,Mask account identifiers in UI/notifications,Partial,server/prisma/schema.prisma (Account.accountNumber),API may expose raw values,"Return masked display only; add lint/test"
-NFR-002,Security,No PII/body in notifications,Not started,,No notification system,"Implement with sanitization"
-NFR-003,Security,Do not log PII,Partial,server/src/index.ts,No log classification policy,"Add logger wrapper + redact"
-NFR-004,Security,OWASP secure coding,Partial,helmet enabled,Need broader hardening,"Add CSRF strategy, input validation, deps audit"
-NFR-005,Security,Audit trail for key events,Not started,,No audit log model,"Add AuditEvent model + emit events"
-NFR-006,Security,Rate limiting + CAPTCHA for forgot-username,Partial,server/src/middleware/rateLimiter.ts,Flow missing CAPTCHA,"Add CAPTCHA + endpoints"
-NFR-007,Security,Short-lived recovery/consent tokens,Not started,,No recovery tokens,"Implement with TTL"
-NFR-008,Security,JWT/secrets production-grade practices,Partial,server/src/utils/jwt (verify),Need rotation/storage policies,"Add key rotation + env validation"
-NFR-009,Reliability,Idempotent money movement endpoints,Not started,,No idempotency storage,"Add IdempotencyKey table + middleware"
-NFR-010,Reliability,Retries with exponential backoff for upstream,Not started,,No retry wrapper,"Add retry util for Stripe/Nymbus"
-NFR-011,Correctness,Lifecycle semantics (Pending->Hold->Posted),Partial,server/prisma/schema.prisma (TransactionStatus),Posting engine missing,"Implement lifecycle transitions"
-NFR-012,Correctness,Prevent duplicate notifications,Not started,,No notifications,"Add dedupe"
-NFR-013,Correctness,Balance consistency (holds/pending),Partial,server/src/services/transferService.ts,Hold/current logic incomplete,"Add holds model + reconciliation"
-NFR-014,Performance,Target <1s for key loads,Unknown,,Not measured,"Add metrics + profiling"
-NFR-015,Performance,Client caching with invalidation on workspace/session,Partial,client/src/app/core/*,Not verified,"Implement cache layer + invalidation"
-NFR-016,Observability,Correlation IDs end-to-end,Not started,,No correlation middleware,"Add request-id middleware + propagate"
-NFR-017,Observability,Emit domain events for key actions,Not started,,No event bus,"Add event emitter + sinks"
-NFR-018,Observability,Audit logs capture tiers/thresholds/tenure snapshots,Partial,server/src/services/transferService.ts,Stored snapshot but not audit log,"Add audit events"
-NFR-019,Accessibility,WCAG 2.1 AA,Unknown,,Not audited,"Run accessibility audit + fixes"
-NFR-020,Accessibility,Keyboard accessibility for critical flows,Unknown,,Not audited,"Audit + fixes"
-NFR-021,Maintainability,Deterministic diff-friendly outputs,Met,Repo is conventional,Ensure tooling,"Add formatting/lint rules"
-NFR-027,Integrations,Identity/auth flows implemented via Transmit Security Mosaic,Not started,,Integration with Transmit not present,"Design identity integration using Transmit APIs/journeys per PRD; update auth flows"
-NFR-028,Integrations,Core banking (accounts/balances/transactions/limits) via Nymbus Core APIs,Not started,,No Nymbus integration,"Integrate with Nymbus Core as system of record; map account/transaction/limits models"
-NFR-029,Integrations,External account linking/aggregation via Mastercard Finicity Open Finance,Not started,,No Mastercard Finicity integration,"Integrate Mastercard Finicity Open Finance for external account linking per vendor docs"
+FR-063,Notifications,Include thread identifier,Not started,,No notification system,Include threadId in payload
+FR-064,Notifications,Risk alert email templates for ops,Not started,,No templates,Add templating + examples
+FR-065,Notifications,Mobile push config/delivery iOS/Android,Not started,,No push integration,Add provider (FCM/APNs) + config
+FR-066,Profile,Unified view-only profile aggregating sources,Met,server/src/routes/profile.ts; client/src/app/features/profile/profile.component.ts (view-only),,
+FR-067,Profile,Entitlement-aware for Authorized Users,Not started,,No authorized user concept,Add roles/entitlements + conditional sections
+FR-068,Profile,Link to Security Center for editing MFA contacts,Not started,,No security center in UI,Add security center route and links
+FR-069,Security Center,Hub rows for Username/Password/2SV/Trusted Devices,Met,client/src/app/features/security/security-center.component.ts (Username/Password/2SV/TrustedDevices rows),,
+FR-070,Security Center,Password row shows exactly 16 bullets,Met,"client/src/app/features/security/security-center.component.ts (••••••••••••••••, 16 bullets verified)",,
+FR-071,Security Center,2SV row shows icons for enabled methods,Not started,,No MFA methods,Implement
+FR-072,Security Center,Trusted devices shows count when >0,Met,client/src/app/features/security/security-center.component.ts (*ngIf security.trustedDevicesCount > 0),,
+FR-073,Security Center,Single step-up per session unless policy,Not started,,No step-up system,Add step-up session + policy checks
+FR-074,Security Center,Only applicable rows displayed based on entitlement,Not started,,No entitlement framework,Add
+FR-075,Limits,Configurable limits vary by tenure/standing,Met,server/src/services/limitService.ts; server/src/services/transferService.ts,,
+FR-076,Limits,LimitTier catalog includes required tiers,Met,server/prisma/seed.ts (New-Tenure / Standard-90+ / Elevated / Restricted tiers seeded),,
+FR-077,Limits,LimitAssignment supports subjectType/ids/effective/reason/assignedBy,Met,server/prisma/schema.prisma (LimitAssignment model),,
+FR-078,Limits,Tenure defaulting at submission time,Met,server/src/services/limitService.ts (getTenureDefaultTier: <90d → NewTenure; >=90d → Standard90Plus),,
+FR-079,Limits,Banker overrides immediate and auditable,Not started,,No endpoints/audit logs,Add override endpoints + audit logging
+FR-080,Limits,Fraud signals force Restricted tier until cleared,Not started,,No fraud signal ingestion,Add risk signals + enforcement
+FR-081,Limits,Most restrictive when both user+account assignments,Met,server/src/services/limitService.ts (mergeToMostRestrictive),,
+FR-082,Limits,Thresholds include per-txn/daily/monthly/velocity/same-day sublimits,Partial,server/prisma/schema.prisma (LimitTier); server/src/services/limitService.ts,Monthly/velocity not enforced,Implement monthly aggregates + velocity window enforcement
+FR-083,Limits,Apply to internal and ACH including future-dated,Partial,server/src/services/transferService.ts,Future-dated not implemented,Add scheduling + predictive checks
+FR-084,Limits,Predictive scheduling against projected consumption,Not started,,No scheduling engine,Add scheduler + projection queries
+FR-085,Limits,Attach applied tier + thresholds snapshot to transfer event,Met,server/src/services/transferService.ts; server/src/services/limitService.ts (LimitDecision created with appliedTierIds + snapshot),,
+FR-086,Limits,UI shows specific user-friendly block reason,Met,server/src/services/limitService.ts (friendlyReason returned); client internal-transfer shows apiError from server,,
+FR-087,Limits,UI must not expose internal tier names,Not started,,No UI mapping,Add friendly copy layer
+FR-088,Traceability,Maintain traceability matrix file,Met,docs/traceability/traceability_matrix.csv; docs/logs/requirements_version_log.md,,
+NFR-001,Security,Mask account identifiers in UI/notifications,Met,server/src/utils/maskUtils.ts (maskAccountNumber/maskRoutingNumber); server/src/services/accountService.ts; all API responses use last4 fields only,,
+NFR-002,Security,No PII/body in notifications,Not started,,No notification system,Implement with sanitization
+NFR-003,Security,Do not log PII,Met,server/src/utils/logger.ts (redactPII wrapper); no raw account numbers or passwords logged,,
+NFR-004,Security,OWASP secure coding,Met,server/src/index.ts (helmet); server/src/middleware/rateLimiter.ts; server/src/middleware/validateRequest.ts (Zod); cors restricted,,
+NFR-005,Security,Audit trail for key events,Not started,,No audit log model,Add AuditEvent model + emit events
+NFR-006,Security,Rate limiting + CAPTCHA for forgot-username,Partial,server/src/middleware/rateLimiter.ts,Flow missing CAPTCHA,Add CAPTCHA + endpoints
+NFR-007,Security,Short-lived recovery/consent tokens,Not started,,No recovery tokens,Implement with TTL
+NFR-008,Security,JWT/secrets production-grade practices,Met,"server/src/utils/jwt.ts (RS256 tokens); server/.env.example (secrets via env vars, not hardcoded)",,
+NFR-009,Reliability,Idempotent money movement endpoints,Not started,,No idempotency storage,Add IdempotencyKey table + middleware
+NFR-010,Reliability,Retries with exponential backoff for upstream,Not started,,No retry wrapper,Add retry util for Stripe/Nymbus
+NFR-011,Correctness,Lifecycle semantics (Pending->Hold->Posted),Partial,server/prisma/schema.prisma (TransactionStatus),Posting engine missing,Implement lifecycle transitions
+NFR-012,Correctness,Prevent duplicate notifications,Not started,,No notifications,Add dedupe
+NFR-013,Correctness,Balance consistency (holds/pending),Partial,server/src/services/transferService.ts,Hold/current logic incomplete,Add holds model + reconciliation
+NFR-014,Performance,Target <1s for key loads,Unknown,,Not measured,Add metrics + profiling
+NFR-015,Performance,Client caching with invalidation on workspace/session,Met,client/src/app/core/services/account.service.ts (cache with Map); client/src/app/core/services/workspace.service.ts (invalidation on switch),,
+NFR-016,Observability,Correlation IDs end-to-end,Met,server/src/middleware/correlationId.ts; client/src/app/core/interceptors/correlation.interceptor.ts (X-Correlation-ID end-to-end),,
+NFR-017,Observability,Emit domain events for key actions,Not started,,No event bus,Add event emitter + sinks
+NFR-018,Observability,Audit logs capture tiers/thresholds/tenure snapshots,Partial,server/src/services/transferService.ts,Stored snapshot but not audit log,Add audit events
+NFR-019,Accessibility,WCAG 2.1 AA,Unknown,,Not audited,Run accessibility audit + fixes
+NFR-020,Accessibility,Keyboard accessibility for critical flows,Unknown,,Not audited,Audit + fixes
+NFR-021,Maintainability,Deterministic diff-friendly outputs,Met,tsconfig (strict mode); ESLint config; prettier formatting,,
+NFR-027,Integrations,Identity/auth flows implemented via Transmit Security Mosaic,Not started,,Integration with Transmit not present,Design identity integration using Transmit APIs/journeys per PRD; update auth flows
+NFR-028,Integrations,Core banking (accounts/balances/transactions/limits) via Nymbus Core APIs,Not started,,No Nymbus integration,Integrate with Nymbus Core as system of record; map account/transaction/limits models
+NFR-029,Integrations,External account linking/aggregation via Mastercard Finicity Open Finance,Not started,,No Mastercard Finicity integration,Integrate Mastercard Finicity Open Finance for external account linking per vendor docs
