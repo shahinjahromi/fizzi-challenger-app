@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
@@ -12,6 +12,21 @@ import { MessageService } from '../../core/services/message.service';
   template: `
     <header class="header" role="banner">
       <div class="header-inner">
+        <button
+          class="menu-toggle"
+          type="button"
+          [attr.aria-expanded]="menuOpen"
+          aria-controls="sidebar-nav"
+          aria-label="Toggle navigation menu"
+          (click)="menuToggle.emit()"
+        >
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+            <line x1="3" y1="6"  x2="19" y2="6"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
         <a routerLink="/dashboard" class="logo" aria-label="Fizzi Challenger Bank – go to dashboard">
           <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <rect width="40" height="40" rx="10" fill="#003087"/>
@@ -67,14 +82,18 @@ import { MessageService } from '../../core/services/message.service';
       display: flex; align-items: center; gap: 8px;
       font-weight: 700; font-size: 17px;
       color: #003087; text-decoration: none;
+      flex-shrink: 0;
     }
-    .header-center { flex: 1; }
+    .header-center { flex: 1; min-width: 0; }
     .workspace-name {
       font-size: 13px; font-weight: 500;
       color: #003087;
       background: #e6edf8;
       border: 1px solid #b8c4d6;
       padding: 3px 12px; border-radius: 999px;
+      display: inline-block;
+      max-width: 200px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .header-right {
       display: flex; align-items: center; gap: 14px;
@@ -99,9 +118,32 @@ import { MessageService } from '../../core/services/message.service';
       border-color: #dde3ed;
     }
     .logout-btn:hover:not(:disabled) { background: #f5f7fa; }
+
+    /* Hamburger – hidden on desktop */
+    .menu-toggle {
+      display: none;
+      align-items: center; justify-content: center;
+      width: 40px; height: 40px;
+      background: transparent; border: none; border-radius: var(--radius-md);
+      color: #5a6a7e; flex-shrink: 0;
+      padding: 0;
+    }
+    .menu-toggle:hover { background: #f5f7fa; }
+
+    @media (max-width: 767px) {
+      .menu-toggle { display: flex; }
+      .header-inner { padding: 0 16px; gap: 10px; }
+      .last-login { display: none; }
+      .logo-text { display: none; }
+      .workspace-name { max-width: 120px; font-size: 12px; padding: 2px 8px; }
+      .username { display: none; }
+    }
   `],
 })
 export class HeaderComponent implements OnInit {
+  @Input() menuOpen = false;
+  @Output() menuToggle = new EventEmitter<void>();
+
   currentUser$  = this.auth.currentUser$;
   currentWorkspace$ = this.ws.currentWorkspace$;
   unreadCount = 0;

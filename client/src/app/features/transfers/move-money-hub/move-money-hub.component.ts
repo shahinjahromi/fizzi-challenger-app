@@ -108,6 +108,12 @@ import { RouterLink } from '@angular/router';
     }
     .manage-title { font-size: 15px; font-weight: 600; color: #0d1b2a; display: block; }
     .manage-subtitle { font-size: 13px; color: #5a6a7e; margin: 2px 0 0; }
+
+    @media (max-width: 480px) {
+      .hub-grid { grid-template-columns: 1fr; }
+      .hub-card { padding: 20px; min-height: auto; }
+      .manage-row { flex-direction: column; align-items: flex-start; }
+    }
   `],
 })
 export class MoveMoneyHubComponent {}

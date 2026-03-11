@@ -210,8 +210,16 @@ type SortDir   = 'asc' | 'desc';
     .pagination {
       display: flex; align-items: center; justify-content: space-between;
       padding-top: 16px; border-top: 1px solid var(--color-border); margin-top: 8px;
+      flex-wrap: wrap; gap: 8px;
     }
     .page-info { font-size: 13px; }
+
+    @media (max-width: 480px) {
+      .account-details-grid { grid-template-columns: 1fr 1fr; }
+      .txn-controls { flex-direction: column; align-items: stretch; }
+      .search-input { max-width: 100%; }
+      .sort-controls { flex-wrap: wrap; }
+    }
   `],
 })
 export class AccountDetailComponent implements OnInit {

@@ -109,8 +109,8 @@ const MAX_BODY = 2000;
     }
     .message-bubble.mine .msg-meta,
     .message-bubble.mine .msg-time { color: rgba(255,255,255,.75); }
-    .msg-meta { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; font-size: 13px; }
-    .msg-body { font-size: 15px; white-space: pre-wrap; }
+    .msg-meta { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; font-size: 13px; flex-wrap: wrap; }
+    .msg-body { font-size: 15px; white-space: pre-wrap; word-break: break-word; }
     .compose-card { margin-top: 0; }
     .compose-area { resize: vertical; min-height: 80px; }
     .compose-footer {
@@ -119,6 +119,12 @@ const MAX_BODY = 2000;
     }
     .compose-actions { display: flex; align-items: center; gap: 12px; }
     .alert.compact { margin: 0; padding: 8px 12px; font-size: 13px; }
+
+    @media (max-width: 767px) {
+      .message-bubble { max-width: 90%; padding: 10px 14px; }
+      .compose-footer { flex-direction: column; }
+      .compose-actions { width: 100%; justify-content: flex-end; }
+    }
   `],
 })
 export class ThreadComponent implements OnInit {

@@ -13,10 +13,11 @@ import { FooterComponent } from './layout/footer/footer.component';
   imports: [RouterOutlet, AsyncPipe, NgIf, HeaderComponent, NavComponent, FooterComponent],
   template: `
     <ng-container *ngIf="showShell$ | async; else bare">
-      <szb-header></szb-header>
+      <szb-header [menuOpen]="menuOpen" (menuToggle)="toggleMenu()"></szb-header>
       <div class="app-body">
-        <szb-nav></szb-nav>
-        <main class="app-main">
+        <div class="nav-overlay" *ngIf="menuOpen" (click)="closeMenu()" aria-hidden="true"></div>
+        <szb-nav [menuOpen]="menuOpen" (navClose)="closeMenu()"></szb-nav>
+        <main class="app-main" id="main-content">
           <router-outlet></router-outlet>
         </main>
       </div>
@@ -30,7 +31,8 @@ import { FooterComponent } from './layout/footer/footer.component';
   styles: [`
     .app-body {
       display: flex;
-      min-height: calc(100vh - 64px - 48px);
+      min-height: calc(100vh - var(--header-height) - 56px);
+      position: relative;
     }
     .app-main {
       flex: 1;
@@ -38,9 +40,14 @@ import { FooterComponent } from './layout/footer/footer.component';
       overflow: auto;
       min-width: 0;
     }
+    @media (max-width: 767px) {
+      .app-main { padding: 16px; }
+    }
   `],
 })
 export class AppComponent implements OnInit {
+  menuOpen = false;
+
   showShell$ = this.router.events.pipe(
     filter((e): e is NavigationEnd => e instanceof NavigationEnd),
     map((e) => !e.urlAfterRedirects.startsWith('/login') && this.auth.isAuthenticated())
@@ -50,5 +57,13 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     // Nothing to restore here since we keep accessToken in memory only
+  }
+
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu(): void {
+    this.menuOpen = false;
   }
 }

@@ -26,15 +26,16 @@ import { DatePipe } from '@angular/common';
   `,
   styles: [`
     .footer {
-      height: 56px;
+      min-height: 56px;
       background: #ffffff;
       border-top: 1px solid #dde3ed;
       display: flex; align-items: center;
     }
     .footer-inner {
       display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px;
       max-width: 1400px; margin: 0 auto;
-      padding: 0 24px; width: 100%;
+      padding: 8px 24px; width: 100%;
     }
     .footer-left { display: flex; align-items: center; gap: 0; }
     .fdic-badge {
@@ -44,10 +45,15 @@ import { DatePipe } from '@angular/common';
       padding: 1px 5px; letter-spacing: 0.05em; margin-right: 8px;
     }
     .copyright { font-size: 12px; color: #8b9ab0; }
-    .footer-links { display: flex; align-items: center; gap: 8px; }
+    .footer-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .footer-link { font-size: 12px; color: #5a6a7e; text-decoration: none; }
     .footer-link:hover { color: #003087; }
     .footer-divider { font-size: 12px; color: #8b9ab0; }
+
+    @media (max-width: 480px) {
+      .footer-inner { flex-direction: column; align-items: flex-start; padding: 12px 16px; }
+      .footer-links { gap: 4px; }
+    }
   `],
 })
 export class FooterComponent {

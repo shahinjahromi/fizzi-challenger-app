@@ -68,12 +68,19 @@ import { User } from '../../shared/models/user.model';
     .profile-row {
       display: flex; justify-content: space-between; align-items: center;
       padding: 12px 0; border-bottom: 1px solid var(--color-border);
+      gap: 12px; flex-wrap: wrap;
     }
     .profile-row:last-child { border-bottom: none; }
-    .profile-label { font-size: 14px; color: var(--color-text-muted); }
-    .profile-value { font-size: 15px; font-weight: 500; }
+    .profile-label { font-size: 14px; color: var(--color-text-muted); flex-shrink: 0; }
+    .profile-value { font-size: 15px; font-weight: 500; word-break: break-word; }
     .security-link-row {
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 480px) {
+      .profile-row { flex-direction: column; align-items: flex-start; }
+      .security-link-row { flex-direction: column; align-items: flex-start; }
+      .security-link-row .btn { width: 100%; }
     }
   `],
 })
