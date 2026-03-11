@@ -157,6 +157,11 @@ import { ProfileService, SecurityCenter } from '../../core/services/profile.serv
     .password-dots { font-size: 18px; letter-spacing: 2px; color: #5a6a7e; }
     .sec-divider { height: 1px; background: #dde3ed; margin: 0 24px; }
     .mt-16 { margin-top: 16px; }
+
+    @media (max-width: 480px) {
+      .sec-row { padding: 12px 16px; min-height: auto; flex-direction: column; align-items: flex-start; }
+      .sec-divider { margin: 0 16px; }
+    }
   `],
 })
 export class SecurityCenterComponent implements OnInit {

@@ -196,6 +196,16 @@ import { User } from '../../shared/models/user.model';
     .acc-current { color: #5a6a7e; }
     .ineligible-indicator { font-size: 13px; color: #b45309; }
     .account-row:hover .row-chevron { opacity: 1; }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+      .quick-actions-grid { grid-template-columns: repeat(2, 1fr); }
+      .summary-amount { font-size: 26px; }
+    }
+    @media (max-width: 480px) {
+      .quick-actions-grid { gap: 8px; }
+      .qa-card { max-height: 72px; padding: 8px; }
+    }
   `],
 })
 export class DashboardComponent implements OnInit {

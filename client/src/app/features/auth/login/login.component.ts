@@ -287,6 +287,10 @@ import { HttpErrorResponse } from '@angular/common/http';
       .login-brand { flex: none; padding: 32px 24px; }
       .login-form-panel { padding: 32px 24px; }
     }
+    @media (max-width: 480px) {
+      .login-brand { padding: 20px 16px; }
+      .login-form-panel { padding: 20px 16px; }
+    }
   `],
 })
 export class LoginComponent {

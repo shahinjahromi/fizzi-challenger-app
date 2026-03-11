@@ -93,6 +93,11 @@ import { Workspace } from '../../../shared/models/workspace.model';
     .ws-item-name { font-weight: 600; font-size: 15px; }
     .ws-item-arrow { font-size: 20px; color: var(--color-text-muted); }
     .ws-empty { text-align: center; color: var(--color-text-muted); padding: 24px; }
+
+    @media (max-width: 480px) {
+      .ws-card { padding: 28px 20px; }
+      .ws-item-inner { padding: 12px; }
+    }
   `],
 })
 export class WorkspaceSelectorComponent implements OnInit {

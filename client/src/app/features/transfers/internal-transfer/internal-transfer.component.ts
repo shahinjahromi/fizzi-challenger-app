@@ -311,6 +311,15 @@ const differentAccountsValidator: ValidatorFn = (ctrl: AbstractControl) => {
     .confirm-details { text-align: left; max-width: 420px; margin: 0 auto 32px; }
     .mono { font-family: monospace; font-size: 13px; }
     .fdic-notice { margin-top: 16px; }
+
+    @media (max-width: 767px) {
+      .stepper { padding: 14px 16px; }
+      .step-label { font-size: 11px; }
+      .form-actions { flex-wrap: wrap; }
+      .form-actions .btn { flex: 1; min-width: 120px; }
+      .review-row { flex-direction: column; align-items: flex-start; gap: 4px; min-height: auto; padding: 10px 2px; }
+      .confirm-card { padding: 32px 16px; }
+    }
   `],
 })
 export class InternalTransferComponent implements OnInit {

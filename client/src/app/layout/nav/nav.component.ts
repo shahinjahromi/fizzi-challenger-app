@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgFor } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -13,7 +13,23 @@ interface NavItem {
   standalone: true,
   imports: [RouterLink, RouterLinkActive, NgFor],
   template: `
-    <nav class="sidebar" aria-label="Main navigation">
+    <nav
+      id="sidebar-nav"
+      class="sidebar"
+      [class.open]="menuOpen"
+      aria-label="Main navigation"
+    >
+      <button
+        class="nav-close"
+        type="button"
+        aria-label="Close navigation menu"
+        (click)="navClose.emit()"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
       <ul class="nav-list" role="list">
         <li *ngFor="let item of navItems">
           <a
@@ -21,6 +37,7 @@ interface NavItem {
             routerLinkActive="active"
             class="nav-link"
             [attr.aria-label]="item.label"
+            (click)="navClose.emit()"
           >
             <span class="nav-icon" aria-hidden="true" [innerHTML]="getIcon(item.label)"></span>
             <span class="nav-label">{{ item.label }}</span>
@@ -57,9 +74,41 @@ interface NavItem {
       padding-left: 17px;
     }
     .nav-icon { width: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    /* Close button – hidden on desktop */
+    .nav-close {
+      display: none;
+      align-items: center; justify-content: flex-end;
+      width: 100%; padding: 8px 16px;
+      background: transparent; border: none;
+      color: #5a6a7e; cursor: pointer;
+    }
+
+    /* Mobile: sidebar becomes a fixed overlay drawer */
+    @media (max-width: 767px) {
+      .sidebar {
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        height: calc(100vh - var(--header-height));
+        z-index: 95;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        overflow-y: auto;
+        box-shadow: 4px 0 16px rgba(0,0,0,0.15);
+        padding-top: 0;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .nav-close { display: flex; }
+      .nav-link { height: 52px; font-size: 15px; padding: 14px 20px; }
+      .nav-link.active { padding-left: 17px; }
+    }
   `],
 })
 export class NavComponent {
+  @Input() menuOpen = false;
+  @Output() navClose = new EventEmitter<void>();
+
   navItems: NavItem[] = [
     { label: 'Dashboard',  route: '/dashboard'   },
     { label: 'Move Money', route: '/move-money'  },
