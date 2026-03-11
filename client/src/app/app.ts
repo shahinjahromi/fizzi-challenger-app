@@ -31,7 +31,7 @@ import { FooterComponent } from './layout/footer/footer.component';
   styles: [`
     .app-body {
       display: flex;
-      min-height: calc(100vh - var(--header-height) - 56px);
+      min-height: calc(100vh - var(--header-height) - var(--footer-height, 56px));
       position: relative;
     }
     .app-main {

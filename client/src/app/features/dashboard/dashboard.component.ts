@@ -204,7 +204,7 @@ import { User } from '../../shared/models/user.model';
     }
     @media (max-width: 480px) {
       .quick-actions-grid { gap: 8px; }
-      .qa-card { max-height: 72px; padding: 8px 4px; }
+      .qa-card { max-height: 72px; padding: 8px; }
     }
   `],
 })
