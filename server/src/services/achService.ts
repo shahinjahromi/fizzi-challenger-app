@@ -6,6 +6,8 @@ import { getEffectiveDate } from '../utils/dateUtils.js';
 import { createAuditEvent } from './auditService.js';
 import { decideLimits } from './limitService.js';
 import logger from '../utils/logger.js';
+import { isNymbusWorkspace, NYMBUS_ACCOUNT_MAP } from '../utils/nymbusMapping.js';
+import * as nymbus from './nymbusService.js';
 
 export interface AchTransferInput {
   userId: string;
@@ -92,8 +94,37 @@ export async function createAchTransfer(input: AchTransferInput) {
   const effectiveDate = getEffectiveDate(undefined, new Date());
   const referenceId = uuidv4();
 
-  // STUB: In production this would call Nymbus / ACH processor
-  logger.info('[INTEGRATION STUB] ACH transfer submission', { referenceId, amount: input.amount });
+  // ── Nymbus source-of-truth: call Nymbus external transfer API ─────────
+  let nymbusRef: unknown = null;
+  if (isNymbusWorkspace(input.workspaceId)) {
+    const nymbusFromId = NYMBUS_ACCOUNT_MAP[fromAccount.accountNumber];
+    if (nymbusFromId) {
+      try {
+        const nymbusResult = await nymbus.createExternalTransfer({
+          fromAccountId: nymbusFromId,
+          accountNumber: externalAccount.maskedAccount, // full account number in production
+          routingNumber: externalAccount.routingLast4,   // full routing number in production
+          accountType: 'checking',
+          amount: input.amount,
+          description: `ACH ${input.direction} via Fizzi`,
+          recipientName: externalAccount.displayName,
+          idempotencyKey: input.idempotencyKey,
+        });
+        nymbusRef = nymbusResult;
+        logger.info('Nymbus external transfer submitted', { referenceId, nymbusResult });
+      } catch (err) {
+        logger.error('Nymbus external transfer failed', {
+          referenceId,
+          error: err instanceof Error ? err.message : err,
+        });
+        // For Nymbus-primary accounts, propagate the failure
+        throw createError('ACH transfer failed at processor.', 502, 'PROCESSOR_ERROR');
+      }
+    }
+  } else {
+    // Non-Nymbus workspace: stub
+    logger.info('[INTEGRATION STUB] ACH transfer submission', { referenceId, amount: input.amount });
+  }
 
   const transfer = await prisma.achTransfer.create({
     data: {
@@ -120,6 +151,7 @@ export async function createAchTransfer(input: AchTransferInput) {
     effectiveDate: transfer.effectiveDate,
     isSameDay: transfer.isSameDay,
     createdAt: transfer.createdAt,
+    ...(nymbusRef ? { nymbusRef } : {}),
   };
 
   await prisma.idempotencyKey.create({

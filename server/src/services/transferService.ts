@@ -6,6 +6,10 @@ import { getEffectiveDate, isBefore1PMET, isBusinessDay } from '../utils/dateUti
 import { createAuditEvent } from './auditService.js';
 import { AuditEventType } from '@prisma/client';
 import { decideLimits } from './limitService.js';
+import * as nymbus from './nymbusService.js';
+import logger from '../utils/logger.js';
+import { isNymbusWorkspace, NYMBUS_ACCOUNT_MAP } from '../utils/nymbusMapping.js';
+import { resolveNymbusPair } from '../utils/nymbusMapping.js';
 
 export interface InternalTransferInput {
   userId: string;
@@ -58,7 +62,38 @@ export async function createInternalTransfer(input: InternalTransferInput) {
     throw createError('Destination account is not eligible for transfers.', 400, 'ACCOUNT_NOT_ELIGIBLE');
   }
   if (Number(fromAccount.availableBalance) < input.amount) {
-    throw createError('Insufficient funds.', 400, 'INSUFFICIENT_FUNDS');
+    // For Nymbus accounts, check Nymbus balance as the source-of-truth
+    if (isNymbusWorkspace(input.workspaceId)) {
+      const nymbusFromId = NYMBUS_ACCOUNT_MAP[fromAccount.accountNumber];
+      if (nymbusFromId) {
+        try {
+          const raw = await nymbus.listAccounts({ accountIds: nymbusFromId });
+          const list: nymbus.NymbusAccount[] = Array.isArray(raw)
+            ? raw
+            : (raw as { data: nymbus.NymbusAccount[] }).data ?? [];
+          const live = list.find((a) => a.id === nymbusFromId);
+          const liveBalance = Number(
+            live?.availableBalance ??
+            (live as Record<string, unknown> | undefined)?.['available_balance'] ??
+            0,
+          );
+          if (liveBalance < input.amount) {
+            throw createError('Insufficient funds.', 400, 'INSUFFICIENT_FUNDS');
+          }
+          // Nymbus has sufficient funds — continue
+        } catch (err) {
+          if ((err as { code?: string }).code === 'INSUFFICIENT_FUNDS') throw err;
+          logger.warn('Nymbus balance check failed – using local fallback', {
+            error: err instanceof Error ? err.message : err,
+          });
+          throw createError('Insufficient funds.', 400, 'INSUFFICIENT_FUNDS');
+        }
+      } else {
+        throw createError('Insufficient funds.', 400, 'INSUFFICIENT_FUNDS');
+      }
+    } else {
+      throw createError('Insufficient funds.', 400, 'INSUFFICIENT_FUNDS');
+    }
   }
 
   // Limits decision
@@ -84,6 +119,25 @@ export async function createInternalTransfer(input: InternalTransferInput) {
 
   const referenceId = uuidv4();
   const transferId = uuidv4();
+  const isNymbus = isNymbusWorkspace(input.workspaceId);
+
+  // ── Nymbus primary: call Nymbus API FIRST so it is the ledger of record ──
+  let nymbusRef: unknown = null;
+  if (isNymbus) {
+    const nymbusAccounts = await resolveNymbusPair(input.fromAccountId, input.toAccountId);
+    const nymbusResult = await nymbus.createInternalTransfer({
+      fromAccountId: nymbusAccounts.fromNymbusId,
+      toAccountId: nymbusAccounts.toNymbusId,
+      amount: input.amount,
+      description: input.memo ?? 'Internal Transfer via Fizzi',
+      idempotencyKey: input.idempotencyKey,
+    });
+    nymbusRef = nymbusResult;
+    logger.info('Nymbus internal transfer submitted (primary)', {
+      transferId,
+      nymbusResult,
+    });
+  }
 
   const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const transfer = await tx.internalTransfer.create({
@@ -136,21 +190,24 @@ export async function createInternalTransfer(input: InternalTransferInput) {
       },
     });
 
-    // Update balances
-    await tx.account.update({
-      where: { id: input.fromAccountId },
-      data: {
-        availableBalance: { decrement: input.amount },
-        currentBalance: { decrement: input.amount },
-      },
-    });
-    await tx.account.update({
-      where: { id: input.toAccountId },
-      data: {
-        availableBalance: { increment: input.amount },
-        currentBalance: { increment: input.amount },
-      },
-    });
+    // Only update local balances for non-Nymbus workspaces.
+    // Nymbus manages its own ledger — our local copy would go stale.
+    if (!isNymbus) {
+      await tx.account.update({
+        where: { id: input.fromAccountId },
+        data: {
+          availableBalance: { decrement: input.amount },
+          currentBalance: { decrement: input.amount },
+        },
+      });
+      await tx.account.update({
+        where: { id: input.toAccountId },
+        data: {
+          availableBalance: { increment: input.amount },
+          currentBalance: { increment: input.amount },
+        },
+      });
+    }
 
     return transfer;
   });
@@ -162,6 +219,7 @@ export async function createInternalTransfer(input: InternalTransferInput) {
     effectiveDate: result.effectiveDate,
     cutoffApplied: result.cutoffApplied,
     createdAt: result.createdAt,
+    ...(nymbusRef ? { nymbusRef } : {}),
   };
 
   await prisma.idempotencyKey.create({

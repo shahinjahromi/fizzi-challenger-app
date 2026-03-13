@@ -116,7 +116,7 @@ export interface NymbusCustomer {
 export async function listCustomers(pageLimit = 100) {
   return nymbusRequest<{ data: NymbusCustomer[]; total: number }>(
     'GET',
-    `/v1.1/customers?pageLimit=${pageLimit}`,
+    `/v1.2/customers?pageLimit=${pageLimit}`,
   );
 }
 
@@ -127,7 +127,7 @@ export async function createCustomer(input: {
   ssn?: string;
   dateOfBirth?: string; // yyyy-MM-dd
 }) {
-  return nymbusRequest('POST', '/v1.1/customers', {
+  return nymbusRequest('POST', '/v1.2/customers', {
     first_name: input.firstName,
     last_name: input.lastName,
     email: input.email,
@@ -143,7 +143,7 @@ export async function searchCustomer(criteria: {
 }) {
   return nymbusRequest<NymbusCustomer[]>(
     'POST',
-    '/v1.0/customers/search',
+    '/v1.2/customers/search',
     criteria,
   );
 }
@@ -186,7 +186,7 @@ export async function createAccount(
 ) {
   return nymbusRequest(
     'POST',
-    `/v1.0/customers/${customerId}/accounts`,
+    `/v1.2/customers/${customerId}/accounts`,
     {
       type: input.type,
       ...(input.initialDeposit != null && { initial_deposit: input.initialDeposit }),
@@ -197,7 +197,7 @@ export async function createAccount(
 export async function getCustomerAccounts(customerId: string) {
   return nymbusRequest<NymbusAccount[]>(
     'GET',
-    `/v1.0/customers/${customerId}/accounts?pageLimit=100`,
+    `/v1.2/customers/${customerId}/accounts?pageLimit=100`,
   );
 }
 
@@ -231,7 +231,7 @@ export async function createInternalTransfer(input: {
 
   return nymbusRequest<NymbusTransferResponse>(
     'POST',
-    '/v1.1/transactions/transfer',
+    '/v1.2/transactions/transfer',
     {
       from_account_id: input.fromAccountId,
       to_account_id: input.toAccountId,
@@ -272,7 +272,7 @@ export async function createExternalTransfer(input: {
 
   return nymbusRequest<NymbusExternalTransferResponse>(
     'POST',
-    '/v1.1/transactions/externalTransfer',
+    '/v1.2/transactions/externalTransfer',
     {
       from_account_id: input.fromAccountId,
       account_number: input.accountNumber,
@@ -290,6 +290,6 @@ export async function createExternalTransfer(input: {
 export async function listTransactions(accountIds: string, pageLimit = 50) {
   return nymbusRequest(
     'GET',
-    `/v1.1/transactions?accountIds=${accountIds}&pageLimit=${pageLimit}`,
+    `/v1.2/transactions?accountIds=${accountIds}&pageLimit=${pageLimit}`,
   );
 }
