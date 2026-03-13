@@ -261,9 +261,25 @@ const differentAccountsValidator: ValidatorFn = (ctrl: AbstractControl) => {
     .step.done ~ .step-line { background: #003087; }
 
     /* Form fields */
-    .form-control { padding: 14px 16px; border-radius: var(--radius-md); }
-    .form-control:focus { border-color: #003087; box-shadow: 0 0 0 3px rgba(0,48,135,.12); outline: none; }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
     .form-label { font-size: 13px; font-weight: 500; color: #5a6a7e; }
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--color-border-dark, #b8c4d6);
+      border-radius: var(--radius-md);
+      background: var(--color-white, #fff);
+      font-size: 15px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .form-control:focus { border-color: #003087; box-shadow: 0 0 0 3px rgba(0,48,135,.12); outline: none; }
+    .form-control.is-invalid { border-color: var(--color-danger, #c0392b); }
+    .form-error { font-size: 12px; color: var(--color-danger, #c0392b); }
     .form-hint { font-size: 12px; color: #5a6a7e; }
 
     /* Amount input with $ prefix */

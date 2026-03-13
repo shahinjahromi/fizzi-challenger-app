@@ -205,6 +205,20 @@ type SortDir   = 'asc' | 'desc';
       display: flex; align-items: center; gap: 12px;
       margin-bottom: 16px; flex-wrap: wrap;
     }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--color-border-dark, #b8c4d6);
+      border-radius: var(--radius-md, 10px);
+      background: var(--color-white, #fff);
+      font-size: 15px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .form-control:focus {
+      border-color: var(--color-primary, #003087);
+      box-shadow: 0 0 0 3px rgba(0,48,135,.15);
+      outline: none;
+    }
     .search-input { max-width: 280px; }
     .sort-controls { display: flex; gap: 8px; }
     .pagination {

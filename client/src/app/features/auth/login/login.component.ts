@@ -221,9 +221,30 @@ import { HttpErrorResponse } from '@angular/common/http';
       margin-bottom: 16px;
     }
 
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-secondary, #1a1a2e);
+    }
     .form-control {
+      width: 100%;
       padding: 14px 16px;
+      border: 1px solid var(--color-border-dark, #b8c4d6);
       border-radius: var(--radius-md);
+      background: var(--color-white, #fff);
+      font-size: 15px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .form-control.is-invalid { border-color: var(--color-danger, #c0392b); }
+    .form-error {
+      font-size: 12px;
+      color: var(--color-danger, #c0392b);
     }
     .form-control:focus {
       border-color: #003087;

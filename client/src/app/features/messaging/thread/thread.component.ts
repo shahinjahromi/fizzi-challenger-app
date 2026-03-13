@@ -111,6 +111,27 @@ const MAX_BODY = 2000;
     .message-bubble.mine .msg-time { color: rgba(255,255,255,.75); }
     .msg-meta { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; font-size: 13px; flex-wrap: wrap; }
     .msg-body { font-size: 15px; white-space: pre-wrap; word-break: break-word; }
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-secondary, #1a1a2e);
+      display: block;
+      margin-bottom: 6px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--color-border-dark, #b8c4d6);
+      border-radius: var(--radius-md, 10px);
+      background: var(--color-white, #fff);
+      font-size: 15px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .form-control:focus {
+      border-color: var(--color-primary, #003087);
+      box-shadow: 0 0 0 3px rgba(0,48,135,.15);
+      outline: none;
+    }
     .compose-card { margin-top: 0; }
     .compose-area { resize: vertical; min-height: 80px; }
     .compose-footer {

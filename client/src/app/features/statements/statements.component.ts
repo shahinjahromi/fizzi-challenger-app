@@ -85,6 +85,31 @@ import { Statement } from '../../shared/models/statement.model';
     </div>
   `,
   styles: [`
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-secondary, #1a1a2e);
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--color-border-dark, #b8c4d6);
+      border-radius: var(--radius-md, 10px);
+      background: var(--color-white, #fff);
+      font-size: 15px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .form-control:focus {
+      border-color: var(--color-primary, #003087);
+      box-shadow: 0 0 0 3px rgba(0,48,135,.15);
+      outline: none;
+    }
     .loading-center { display: flex; justify-content: center; padding: 32px; }
     .stmts-empty, .stmts-hint { padding: 24px 0; }
   `],
