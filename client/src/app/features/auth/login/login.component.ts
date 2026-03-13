@@ -164,6 +164,15 @@ import { HttpErrorResponse } from '@angular/common/http';
               <span class="demo-credentials__password">{{ cred.password }}</span>
             </div>
           </div>
+
+          <div class="demo-credentials demo-credentials--nymbus" *ngIf="showTestCredentials" aria-label="Nymbus sandbox accounts">
+            <p class="demo-credentials__title">Nymbus sandbox accounts</p>
+            <div class="demo-credentials__row" *ngFor="let cred of nymbusCredentials">
+              <span class="demo-credentials__username">{{ cred.username }}</span>
+              <span class="demo-credentials__email">{{ cred.email }}</span>
+              <span class="demo-credentials__password">{{ cred.password }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -274,6 +283,9 @@ import { HttpErrorResponse } from '@angular/common/http';
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    .demo-credentials--nymbus {
+      border-top: 1px dashed rgba(107, 114, 128, 0.2);
+    }
     .link-btn {
       background: none; border: none; padding: 0;
       color: #003087; cursor: pointer; font-size: 13px; text-align: left;
@@ -303,6 +315,13 @@ export class LoginComponent {
     { username: 'bob', email: 'bob@example.com', password: 'demo1234' },
     { username: 'carol', email: 'carol@example.com', password: 'demo1234' },
     { username: 'dave', email: 'dave@example.com', password: 'demo1234' },
+  ];
+
+  readonly nymbusCredentials = [
+    { username: 'emily', email: 'emily.nymbus@fizzibank.test', password: 'demo1234' },
+    { username: 'marcus', email: 'marcus.nymbus@fizzibank.test', password: 'demo1234' },
+    { username: 'jordan', email: 'jordan.smith@example.com', password: 'demo1234' },
+    { username: 'alex', email: 'alex.chen@example.com', password: 'demo1234' },
   ];
 
   form: FormGroup;

@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 const WORKSPACE_IDS = {
   acme: '11111111-1111-4111-8111-111111111111',
   beta: '22222222-2222-4222-8222-222222222222',
+  nymbus: '33333333-3333-4333-8333-333333333333',
 } as const;
 
 async function main() {
@@ -119,6 +120,10 @@ async function main() {
     { username: 'bob', email: 'bob@example.com', role: UserRole.AuthorizedUser, tenureStartDate: tenureOld },
     { username: 'carol', email: 'carol@example.com', role: UserRole.PrimaryAdmin, tenureStartDate: tenureOld },
     { username: 'dave', email: 'dave@example.com', role: UserRole.AuthorizedUser, tenureStartDate: tenureOld },
+    { username: 'emily', email: 'emily.nymbus@fizzibank.test', role: UserRole.PrimaryAdmin, tenureStartDate: tenureOld },
+    { username: 'marcus', email: 'marcus.nymbus@fizzibank.test', role: UserRole.AuthorizedUser, tenureStartDate: tenureOld },
+    { username: 'jordan', email: 'jordan.smith@example.com', role: UserRole.PrimaryAdmin, tenureStartDate: tenureOld },
+    { username: 'alex', email: 'alex.chen@example.com', role: UserRole.AuthorizedUser, tenureStartDate: tenureOld },
   ];
 
   const users: Record<string, string> = {};
@@ -142,6 +147,7 @@ async function main() {
   const workspaceDefs = [
     { id: WORKSPACE_IDS.acme, name: 'Acme Corp' },
     { id: WORKSPACE_IDS.beta, name: 'Beta LLC' },
+    { id: WORKSPACE_IDS.nymbus, name: 'Nymbus Sandbox' },
   ];
 
   const workspaces: Record<string, string> = {};
@@ -160,6 +166,10 @@ async function main() {
     { userId: users['bob'], workspaceId: workspaces['Acme Corp'], role: UserRole.AuthorizedUser },
     { userId: users['carol'], workspaceId: workspaces['Beta LLC'], role: UserRole.PrimaryAdmin },
     { userId: users['dave'], workspaceId: workspaces['Beta LLC'], role: UserRole.AuthorizedUser },
+    { userId: users['emily'], workspaceId: workspaces['Nymbus Sandbox'], role: UserRole.PrimaryAdmin },
+    { userId: users['marcus'], workspaceId: workspaces['Nymbus Sandbox'], role: UserRole.AuthorizedUser },
+    { userId: users['jordan'], workspaceId: workspaces['Nymbus Sandbox'], role: UserRole.PrimaryAdmin },
+    { userId: users['alex'], workspaceId: workspaces['Nymbus Sandbox'], role: UserRole.AuthorizedUser },
   ];
 
   for (const m of membershipDefs) {
@@ -216,6 +226,28 @@ async function main() {
       currentBalance: 34000.0,
       interestRate: 0.045,
       interestEarned: 127.5,
+    },
+    {
+      workspaceId: workspaces['Nymbus Sandbox'],
+      name: 'Nymbus Checking',
+      accountNumber: '3000000001',
+      routingNumber: '091000019',
+      type: AccountType.Checking,
+      availableBalance: 15420.50,
+      currentBalance: 15420.50,
+      interestRate: 0,
+      interestEarned: 0,
+    },
+    {
+      workspaceId: workspaces['Nymbus Sandbox'],
+      name: 'Nymbus Savings',
+      accountNumber: '3000000002',
+      routingNumber: '091000019',
+      type: AccountType.Savings,
+      availableBalance: 25000.0,
+      currentBalance: 25000.0,
+      interestRate: 0.04,
+      interestEarned: 210.0,
     },
   ];
 

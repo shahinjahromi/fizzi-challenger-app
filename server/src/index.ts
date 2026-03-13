@@ -19,6 +19,7 @@ import statementsDownloadRouter from './routes/statementsDownload.js';
 import messagesRouter from './routes/messages.js';
 import limitsRouter from './routes/limits.js';
 import profileRouter from './routes/profile.js';
+import nymbusRouter from './routes/nymbus.js';
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/ach', achRouter);
 app.use('/messages', messagesRouter);
 app.use('/limits', limitsRouter);
 app.use('/profile', profileRouter);
+app.use('/nymbus', nymbusRouter);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 app.use((_req, res) => {
