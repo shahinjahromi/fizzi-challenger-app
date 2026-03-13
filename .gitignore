@@ -52,3 +52,4 @@ yarn-error.log*
 lerna-debug.log*
 client/dist/
 .vercel
+*.zip

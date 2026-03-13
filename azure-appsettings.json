@@ -1,0 +1,14 @@
+[
+  { "name": "DATABASE_URL", "value": "postgresql://fizziadmin:F1zz!Ch@llenger2026#Db@fizzi-pg-server.postgres.database.azure.com:5432/fizzi_bank?sslmode=require", "slotSetting": false },
+  { "name": "JWT_ACCESS_SECRET", "value": "AzFizziProd_Acc3ss_S3cret_2026_K3y_m1n32chars", "slotSetting": false },
+  { "name": "JWT_REFRESH_SECRET", "value": "AzFizziProd_R3fr3sh_S3cret_2026_K3y_m1n32ch", "slotSetting": false },
+  { "name": "JWT_ACCESS_EXPIRES_IN", "value": "15m", "slotSetting": false },
+  { "name": "JWT_REFRESH_EXPIRES_IN", "value": "7d", "slotSetting": false },
+  { "name": "PORT", "value": "8080", "slotSetting": false },
+  { "name": "NODE_ENV", "value": "production", "slotSetting": false },
+  { "name": "NYMBUS_BASE_URL", "value": "https://nymbus-sandbox-app.livelyforest-3ab8d97c.westus2.azurecontainerapps.io", "slotSetting": false },
+  { "name": "NYMBUS_CLIENT_ID", "value": "sandbox_tenantshahin_e3b11199", "slotSetting": false },
+  { "name": "NYMBUS_CLIENT_SECRET", "value": "bc1432c6e21b725de125c3dcda1e3ee7927d7fda70cde3c3", "slotSetting": false },
+  { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "true", "slotSetting": false },
+  { "name": "WEBSITE_NODE_DEFAULT_VERSION", "value": "~20", "slotSetting": false }
+]
