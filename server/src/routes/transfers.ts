@@ -13,7 +13,7 @@ const internalTransferSchema = z.object({
   toAccountId: z.string().uuid(),
   amount: z.number().positive('Amount must be positive.'),
   memo: z.string().max(255).optional(),
-  requestedExecutionDate: z.string().datetime().optional().transform((v) => v ? new Date(v) : undefined),
+  requestedExecutionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}(T.*)?$/, 'Invalid date format').optional().transform((v) => v ? new Date(v) : undefined),
 });
 
 const listQuerySchema = z.object({
