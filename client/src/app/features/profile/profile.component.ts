@@ -61,9 +61,25 @@ import { User } from '../../shared/models/user.model';
       </div>
     </div>
   `,
-  styles: [`
-    .loading-center { display: flex; justify-content: center; padding: 60px; }
+  styles: [
+    `.loading-center { display: flex; justify-content: center; padding: 60px; }
+    .card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-top: 24px; }
     .profile-avatar { font-size: 56px; text-align: center; margin-bottom: 20px; }
+    .profile-grid { display: flex; flex-direction: column; }
+    .profile-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-border); gap: 12px; flex-wrap: wrap; }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-label { font-size: 14px; color: var(--color-text-muted); flex-shrink: 0; }
+    .profile-value { font-size: 15px; font-weight: 500; word-break: break-word; }
+    .badge { background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+    .text-muted { color: var(--color-text-muted); }
+    .text-small { font-size: 12px; }
+    .divider { border-top: 1px solid var(--color-border); margin: 24px 0; }
+    .security-link-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .btn-secondary { background: var(--color-white); color: var(--color-primary); border: 1px solid var(--color-primary); }
+    .btn-secondary:hover:not(:disabled) { background: var(--color-primary-light); }
+    @media (max-width: 480px) { .profile-row { flex-direction: column; align-items: flex-start; } .security-link-row { flex-direction: column; align-items: flex-start; } .security-link-row .btn { width: 100%; } }
+    .alert-error { color: var(--color-danger); background: var(--color-danger-light); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; }
+  ],
     .profile-grid { display: flex; flex-direction: column; }
     .profile-row {
       display: flex; justify-content: space-between; align-items: center;

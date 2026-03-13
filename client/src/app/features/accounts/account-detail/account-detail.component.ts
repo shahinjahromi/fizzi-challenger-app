@@ -176,9 +176,47 @@ type SortDir   = 'asc' | 'desc';
       </div>
     </ng-container>
   `,
-  styles: [`
-    .back-link { margin-bottom: 16px; }
+  styles: [
+    `.account-header-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+    }
+    .account-title-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .page-title { font-size: 22px; font-weight: 700; color: var(--color-text); margin: 0; }
+    .badge { background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+    .account-type-badge { background: var(--color-bg); color: var(--color-text-muted); border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+    .account-details-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 18px; }
+    .detail-label { font-size: 12px; color: var(--color-text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .detail-value { font-size: 16px; color: var(--color-text); font-weight: 500; }
+    .mono { font-family: ui-monospace, monospace; }
+    .balance-avail { color: var(--color-success); font-weight: 700; }
+    .text-success { color: var(--color-success); }
+    .mt-24 { margin-top: 24px; }
+    .card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
+    .txn-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-size: 16px; font-weight: 600; margin: 0; }
+    .txn-total { font-size: 13px; color: var(--color-text-muted); }
+    .txn-controls { display: flex; gap: 12px; margin-bottom: 16px; }
+    .search-input { border-radius: var(--radius-md); border: 1px solid var(--color-border-dark); padding: 10px 12px; font-size: 15px; }
+    .sort-controls .btn { margin-left: 8px; }
+    .table-wrapper { overflow-x: auto; }
+    .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .table th { padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; color: var(--color-text-muted); }
+    .table td { padding: 10px 14px; }
+    .account-row { cursor: pointer; }
+    .row-alt td { background: var(--color-bg); }
+    .text-muted { color: var(--color-text-muted); }
+    .text-small { font-size: 12px; }
+    @media (max-width: 767px) { .account-details-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .card { padding: 12px; } }
     .loading-center { display: flex; justify-content: center; padding: 60px; }
+    .alert-error { color: var(--color-danger); background: var(--color-danger-light); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; }
+  ],
     .account-header-card { margin-bottom: 0; }
     .account-title-row {
       display: flex; align-items: flex-start; justify-content: space-between;

@@ -132,9 +132,27 @@ import { ProfileService, SecurityCenter } from '../../core/services/profile.serv
       <a routerLink="/profile" class="btn btn-ghost btn-sm">← Back to Profile</a>
     </div>
   `,
-  styles: [`
-    .loading-center { display: flex; justify-content: center; padding: 60px; }
-    /* sec-card uses zero padding so row dividers extend full-width edge-to-edge;
+  styles: [
+    `.loading-center { display: flex; justify-content: center; padding: 60px; }
+    .sec-card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-top: 24px; padding: 24px; }
+    .sec-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 0; }
+    .sec-item { display: flex; align-items: center; gap: 12px; }
+    .sec-icon-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .sec-icon-circle--blue { background: var(--color-primary-light); color: var(--color-primary); }
+    .sec-icon-circle--green { background: var(--color-success-light); color: var(--color-success); }
+    .sec-info { display: flex; flex-direction: column; }
+    .sec-label { font-size: 14px; color: var(--color-text-muted); }
+    .sec-value { font-size: 15px; font-weight: 500; }
+    .badge { background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+    .badge-green { background: var(--color-success-light); color: var(--color-success); }
+    .badge-yellow { background: var(--color-warning-light); color: var(--color-warning); }
+    .sec-divider { border-top: 1px solid var(--color-border); margin: 0; }
+    .btn-ghost { background: transparent; color: var(--color-text-muted); border: 1px solid var(--color-border); }
+    .btn-ghost:hover:not(:disabled) { background: var(--color-bg); }
+    .btn-sm { padding: 6px 14px; font-size: 13px; }
+    .alert-error { color: var(--color-danger); background: var(--color-danger-light); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; }
+    @media (max-width: 480px) { .sec-row { flex-direction: column; align-items: flex-start; } }
+  ],
        each row has its own horizontal padding instead. */
     .sec-card { padding: 0; overflow: hidden; }
     .sec-row {

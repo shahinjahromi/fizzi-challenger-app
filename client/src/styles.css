@@ -3,6 +3,7 @@
 /* ── CSS Custom Properties ───────────────────────────────────────── */
 :root {
   --color-primary:        #003087;
+  --color-primary:        #003087;
   --color-primary-dark:   #00256b;
   --color-primary-light:  #e6edf8;
   --color-secondary:      #1a1a2e;
@@ -22,16 +23,15 @@
   --color-text:           #0d1b2a;
   --color-text-muted:     #5a6a7e;
   --color-text-light:     #8b9ab0;
-
-  --radius-sm:  6px;
-  --radius-md:  10px;
-  --radius-lg:  14px;
-  --radius-xl:  20px;
-
+  --color-border:         #E5E0FB;
+  --color-border-dark:    #B8C4D6;
+  --color-text:           #22223B;
+  --color-text-muted:     #949494;
+  --color-text-light:     #8B9AB0;
+  --shadow-sm:  0 1px 3px rgba(0,30,87,.07);
   --shadow-sm:  0 1px 3px rgba(0,30,87,.07);
   --shadow-md:  0 4px 12px rgba(0,30,87,.10);
   --shadow-lg:  0 12px 32px rgba(0,30,87,.14);
-
   --transition: 150ms ease;
 
   --header-height: 68px;

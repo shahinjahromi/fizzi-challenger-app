@@ -88,9 +88,31 @@ const MAX_BODY = 2000;
       </div>
     </ng-container>
   `,
-  styles: [`
-    .back-link { margin-bottom: 16px; }
-    .loading-center { display: flex; justify-content: center; padding: 60px; }
+  styles: [
+    `.back-link { margin-bottom: 16px; }
+    .page-header { margin-bottom: 24px; }
+    .page-title { font-size: 22px; font-weight: 700; color: var(--color-text); margin: 0; }
+    .page-subtitle { font-size: 14px; color: var(--color-text-muted); margin: 0; }
+    .messages-list { margin-bottom: 24px; }
+    .message-bubble { background: var(--color-primary-light); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+    .message-bubble.mine { background: var(--color-success-light); color: var(--color-success); }
+    .message-bubble.theirs { background: var(--color-primary-light); color: var(--color-primary); }
+    .msg-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .msg-from { font-weight: 600; font-size: 14px; }
+    .msg-time { font-size: 12px; color: var(--color-text-muted); }
+    .msg-body { font-size: 15px; color: var(--color-text); }
+    .no-messages { color: var(--color-text-muted); }
+    .compose-card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 24px; margin-top: 24px; }
+    .form-label { font-size: 14px; font-weight: 500; color: var(--color-secondary); margin-bottom: 8px; }
+    .compose-area { border-radius: var(--radius-md); border: 1px solid var(--color-border-dark); padding: 10px 12px; font-size: 15px; margin-bottom: 12px; }
+    .compose-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+    .char-count { font-size: 12px; color: var(--color-text-muted); }
+    .compose-actions { display: flex; gap: 8px; }
+    .alert-error { color: var(--color-danger); background: var(--color-danger-light); border-radius: var(--radius-md); padding: 8px; margin-bottom: 8px; }
+    .compact { padding: 4px 8px; font-size: 12px; }
+    @media (max-width: 767px) { .compose-card { padding: 12px; } }
+    @media (max-width: 480px) { .compose-card { padding: 8px; } }
+  ],
     .messages-list {
       display: flex; flex-direction: column; gap: 16px;
       margin-bottom: 24px;

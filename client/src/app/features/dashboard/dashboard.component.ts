@@ -12,75 +12,44 @@ import { User } from '../../shared/models/user.model';
   standalone: true,
   imports: [NgFor, NgIf, NgClass, AsyncPipe, CurrencyPipe, DatePipe, RouterLink],
   template: `
-    <div class="page-header">
-      <div class="welcome-row">
-        <div>
-          <h1 class="page-title">Welcome back, {{ (currentUser$ | async)?.username }}</h1>
-          <p class="page-subtitle" *ngIf="lastLogin">
-            Last login: {{ lastLogin | date:'medium' }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading -->
-    <div class="loading-center" *ngIf="loading" aria-busy="true">
-      <span class="spinner spinner-lg" aria-hidden="true"></span>
-    </div>
-
-    <!-- Error -->
-    <div class="alert alert-error" *ngIf="error" role="alert">
-      <span>⚠</span> {{ error }}
-    </div>
-
-    <ng-container *ngIf="!loading && !error">
-      <!-- Summary card -->
-      <div class="card summary-card">
-        <div class="summary-label">Total Available Balance</div>
-        <div class="summary-amount">{{ totalAvailable | currency:'USD' }}</div>
-        <div class="summary-current">
-          Total Current Balance: {{ totalCurrent | currency:'USD' }}
-        </div>
-      </div>
-
-      <!-- Quick actions grid -->
-      <div class="quick-actions-grid">
-        <button class="qa-card" type="button" routerLink="/move-money" aria-label="Move Money">
-          <span class="qa-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 18 18" fill="none"><path d="M3 9H15M15 9L11 5M15 9L11 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-          <span class="qa-label">Move Money</span>
-        </button>
-        <button class="qa-card" type="button" routerLink="/statements" aria-label="Statements">
-          <span class="qa-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 18 18" fill="none"><rect x="3" y="1" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 6H12M6 9H12M6 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </span>
-          <span class="qa-label">Statements</span>
-        </button>
-        <button class="qa-card" type="button" routerLink="/move-money" aria-label="Linked Accounts">
-          <span class="qa-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 12L12 8M10 4H6a4 4 0 000 8h2M10 16h4a4 4 0 000-8h-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </span>
-          <span class="qa-label">Linked Accounts</span>
-        </button>
-        <button class="qa-card" type="button" routerLink="/messages" aria-label="Support">
-          <span class="qa-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0112 0" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="10" width="4" height="6" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="10" width="4" height="6" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
-          </span>
-          <span class="qa-label">Support</span>
-        </button>
-      </div>
-
-      <!-- Accounts -->
-      <div class="card mt-24">
-        <div class="accounts-header">
-          <h2 class="section-title">Your Accounts</h2>
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm"
-            (click)="showClosed = !showClosed"
-          >
-            {{ showClosed ? 'Hide Closed' : 'Show Closed' }}
+    styles: [
+      `.welcome-row { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+      .page-title { font-size: 36px; font-weight: 700; color: var(--color-primary); margin: 0 0 12px 0; }
+      .page-subtitle { font-size: 16px; color: var(--color-text-muted); margin-bottom: 24px; }
+      .loading-center { display: flex; justify-content: center; padding: 60px; }
+      .summary-card { background: var(--color-white); border-radius: var(--radius-lg); box-shadow: none; border: 1px solid var(--color-border); padding: 32px 24px; margin-bottom: 32px; }
+      .summary-label { font-size: 13px; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; font-weight: 500; }
+      .summary-amount { font-size: 40px; font-weight: 700; color: var(--color-primary); margin: 0 0 8px; }
+      .summary-current { font-size: 15px; color: var(--color-text-muted); }
+      .quick-actions-grid { display: flex; gap: 24px; margin-top: 32px; }
+      .qa-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; min-width: 220px; min-height: 100px; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); cursor: pointer; transition: border-color 150ms ease; padding: 24px 16px; box-shadow: none; }
+      .qa-card:hover { border-color: var(--color-primary); }
+      .qa-icon { display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-size: 24px; }
+      .qa-label { font-size: 16px; font-weight: 500; color: var(--color-primary); text-align: center; }
+      .mt-24 { margin-top: 32px; }
+      .accounts-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+      .section-title { font-size: 20px; font-weight: 700; margin: 0; color: var(--color-text); }
+      .table-wrapper { overflow-x: auto; }
+      .table { width: 100%; border-collapse: collapse; font-size: 16px; background: var(--color-white); }
+      .table th { padding: 12px 16px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; color: var(--color-text-muted); background: var(--color-bg); }
+      .table td { padding: 12px 16px; font-size: 16px; color: var(--color-text); }
+      .account-row { cursor: pointer; border-bottom: 1px solid var(--color-border); }
+      .row-alt td { background: var(--color-bg); }
+      .acc-name-row { display: flex; align-items: center; gap: 6px; }
+      .acc-name { font-weight: 700; font-size: 16px; color: var(--color-text); }
+      .acc-last4 { font-size: 14px; color: var(--color-text-muted); font-family: ui-monospace, monospace; }
+      .acc-current { color: var(--color-text-muted); }
+      .ineligible-indicator { font-size: 14px; color: var(--color-warning); }
+      .account-row:hover { background: var(--color-primary-light); }
+      .badge { background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; border-radius: 999px; padding: 4px 12px; font-size: 14px; }
+      .text-right { text-align: right; }
+      .fw-600 { font-weight: 600; }
+      .text-center { text-align: center; }
+      .text-muted { color: var(--color-text-muted); }
+      @media (max-width: 1024px) { .quick-actions-grid { flex-direction: column; gap: 16px; } .qa-card { min-width: 100%; } }
+      @media (max-width: 767px) { .summary-card { padding: 16px 8px; } .quick-actions-grid { flex-direction: column; gap: 12px; } .qa-card { min-width: 100%; padding: 12px 8px; } .section-title { font-size: 16px; } .table th, .table td { font-size: 14px; padding: 8px; } }
+      @media (max-width: 480px) { .summary-amount { font-size: 28px; } .qa-label { font-size: 14px; } }
+    ],
           </button>
         </div>
 

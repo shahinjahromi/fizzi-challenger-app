@@ -66,9 +66,31 @@ import { Thread } from '../../../shared/models/message.model';
       </ul>
     </div>
   `,
-  styles: [`
-    .inbox-title-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  styles: [
+    `.inbox-title-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     .loading-center { display: flex; justify-content: center; padding: 60px; }
+    .card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-top: 24px; }
+    .thread-list { list-style: none; margin: 0; padding: 0; }
+    .thread-item { border-bottom: 1px solid var(--color-border); cursor: pointer; transition: background var(--transition); }
+    .thread-item:last-child { border-bottom: none; }
+    .thread-item:hover { background: var(--color-bg); }
+    .thread-item.unread { background: var(--color-primary-light); }
+    .thread-inner { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+    .thread-icon { font-size: 20px; color: var(--color-primary); width: 32px; text-align: center; }
+    .thread-body { flex: 1; min-width: 0; }
+    .thread-subject-row { display: flex; align-items: center; gap: 8px; }
+    .thread-subject { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .thread-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px; }
+    .thread-from { font-size: 13px; color: var(--color-text-muted); }
+    .thread-arrow { font-size: 20px; color: var(--color-text-muted); }
+    .badge { background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+    .unread-badge { margin-left: 8px; }
+    .text-muted { color: var(--color-text-muted); }
+    .text-center { text-align: center; }
+    @media (max-width: 767px) { .thread-inner { padding: 10px 8px; } }
+    @media (max-width: 480px) { .card { padding: 12px; } }
+    .alert-error { color: var(--color-danger); background: var(--color-danger-light); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; }
+  ],
     .thread-list { list-style: none; margin: 0; padding: 0; }
     .thread-item {
       border-bottom: 1px solid var(--color-border); cursor: pointer;
