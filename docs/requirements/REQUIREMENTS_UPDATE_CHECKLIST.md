@@ -34,6 +34,8 @@ Using the PRD and the latest change log entry as the source of truth:
   Add, remove, or update lines so each requirement has a single FR-xxx line; keep IDs stable unless you are intentionally renaming or retiring one.
 - **`docs/requirements/non_functional_requirements.md`**  
   Same for NFR-xxx when the PRD changes non-functional or cross-cutting concerns.
+- **`docs/requirements/functional_requirements.yaml`** and **`docs/requirements/non_functional_requirements.yaml`**  
+  Keep in sync with the Markdown FR/NFR files (same IDs, areas, and statements).
 - **`docs/requirements/acceptance_tests.md`**  
   Update scenario bullets to match new or changed acceptance criteria in the PRD.
 - **Other artifacts** (e.g. `business_context.md`, `api_contracts.md`, `data_contracts.md`, `ui_contracts.md`, `glossary.md`, `decisions.md`)  

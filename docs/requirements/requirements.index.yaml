@@ -5,7 +5,9 @@ project:
 outputs:
   business_context: docs/requirements/business_context.md
   functional_requirements: docs/requirements/functional_requirements.md
+  functional_requirements_yaml: docs/requirements/functional_requirements.yaml
   non_functional_requirements: docs/requirements/non_functional_requirements.md
+  non_functional_requirements_yaml: docs/requirements/non_functional_requirements.yaml
   data_contracts: docs/requirements/data_contracts.md
   api_contracts: docs/requirements/api_contracts.md
   ui_contracts: docs/requirements/ui_contracts.md

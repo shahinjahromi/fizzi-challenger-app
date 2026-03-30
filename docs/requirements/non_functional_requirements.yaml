@@ -1,0 +1,113 @@
+# Machine-readable non-functional requirements (mirrors non_functional_requirements.md).
+# Edit the Markdown source of truth first, then regenerate or sync this file.
+schema_version: "1.0"
+type: non_functional_requirements
+source_markdown: docs/requirements/non_functional_requirements.md
+sections:
+  - area: Security, privacy, and compliance
+    requirements:
+      - id: NFR-001
+        statement: |
+          The system must mask account identifiers in customer-facing UI and notifications (e.g., last-4 only).
+      - id: NFR-002
+        statement: |
+          The system must not include PII or message body content in notifications.
+      - id: NFR-003
+        statement: |
+          The system must not log PII and must apply a data classification policy to logs.
+      - id: NFR-004
+        statement: |
+          The system must follow OWASP-aligned secure coding practices.
+      - id: NFR-005
+        statement: |
+          The system must produce an audit trail for authentication events, MFA events, account recovery events, consent events, and limit override events.
+      - id: NFR-006
+        statement: |
+          The forgot-username flow must use rate limiting and CAPTCHA to mitigate enumeration and abuse.
+      - id: NFR-007
+        statement: |
+          Account recovery and consent tokens must be short-lived.
+      - id: NFR-008
+        statement: |
+          JWT handling and secrets management must use production-grade practices.
+
+  - area: Reliability and correctness
+    requirements:
+      - id: NFR-009
+        statement: |
+          Money movement endpoints must be idempotent and safe to retry.
+      - id: NFR-010
+        statement: |
+          The system must implement retries with exponential backoff for transient upstream failures.
+      - id: NFR-011
+        statement: |
+          The system must maintain correct transaction lifecycle semantics (Pending -> Hold -> Posted) and must not mark completion prematurely.
+      - id: NFR-012
+        statement: |
+          The system must prevent duplicate notifications for money movement lifecycle events.
+      - id: NFR-013
+        statement: |
+          The system must ensure balance consistency between available and current balances, including holds and pending items.
+
+  - area: Performance
+    requirements:
+      - id: NFR-014
+        statement: |
+          Typical latency for workspace switch, accounts load, and dashboard summary should target under 1 second in normal conditions.
+      - id: NFR-015
+        statement: |
+          Client caching must be implemented with correct invalidation on workspace switch and session re-authentication.
+
+  - area: Observability
+    requirements:
+      - id: NFR-016
+        statement: |
+          The system must propagate correlation IDs end-to-end across client, API, and upstream systems.
+      - id: NFR-017
+        statement: |
+          The system must emit domain events for login, workspace switch, internal transfer submission, ACH submission, statement download, and limit decisioning.
+      - id: NFR-018
+        statement: |
+          Audit logs must capture applied tiers and thresholds consulted for limit decisions, including tenure and standing snapshots.
+
+  - area: Accessibility
+    requirements:
+      - id: NFR-019
+        statement: |
+          The web application must meet WCAG 2.1 AA requirements.
+      - id: NFR-020
+        statement: |
+          Reskinned components and critical flows must be keyboard accessible and include appropriate ARIA roles.
+
+  - area: Maintainability and architecture
+    requirements:
+      - id: NFR-021
+        statement: |
+          Requirements and outputs must remain deterministic and diff-friendly for version control, avoiding unnecessary churn.
+      - id: NFR-022
+        statement: |
+          Code changes must preserve the Single Responsibility Principle: each module/service/class should have one primary responsibility and a single clear reason to change.
+      - id: NFR-023
+        statement: |
+          Code changes must preserve the Open/Closed Principle: components should be extensible via configuration, composition, or adding new implementations, without modifying stable core logic.
+      - id: NFR-024
+        statement: |
+          Public APIs and domain abstractions must preserve the Liskov Substitution Principle: any implementation of an interface/abstract type must be safely substitutable without surprising side effects.
+      - id: NFR-025
+        statement: |
+          Service and module interfaces must preserve the Interface Segregation Principle: avoid "fat" interfaces and prefer smaller, role-specific interfaces so callers do not depend on unused methods.
+      - id: NFR-026
+        statement: |
+          Code changes must preserve the Dependency Inversion Principle: depend on abstractions, not concrete implementations, and inject infrastructure (databases, bank-core providers, notification providers) behind stable interfaces.
+
+  - area: Integrations and external providers
+    requirements:
+      - id: NFR-027
+        statement: |
+          Identity, authentication, password, and session management flows must be implemented using the Transmit Security Mosaic platform and its APIs/journeys as the primary customer identity provider.
+      - id: NFR-028
+        statement: |
+          Core banking capabilities (accounts, balances, transactions, limits) must integrate with Nymbus Core APIs as the system of record for financial data.
+      - id: NFR-029
+        statement: |
+          External account linking and aggregation must use Mastercard Finicity Open Finance APIs as the provider for external account data and linking journeys.

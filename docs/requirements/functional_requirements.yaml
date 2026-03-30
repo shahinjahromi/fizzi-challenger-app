@@ -1,0 +1,302 @@
+# Machine-readable functional requirements (mirrors functional_requirements.md).
+# Edit the Markdown source of truth first, then regenerate or sync this file.
+schema_version: "1.0"
+type: functional_requirements
+source_markdown: docs/requirements/functional_requirements.md
+sections:
+  - area: Authentication & session
+    requirements:
+      - id: FR-001
+        statement: |
+          The system must support username and password login with visible loading states and precise error messages.
+      - id: FR-002
+        statement: |
+          The system must support a forgot-password flow that sends a reset link to the email address on file, guides the user through verifying their username, clearing any existing MFA state, and choosing a new password, and on completion returns the user to a clean login state with no residual banners and no prefilled values while enforcing MFA again on the next login when required by policy.
+      - id: FR-003
+        statement: |
+          The system must support username recovery without revealing the username in-app.
+      - id: FR-004
+        statement: |
+          On session expiration, the system must clear workspace and account caches and require re-authentication.
+      - id: FR-005
+        statement: |
+          After re-authentication, the system must re-initialize workspace and account state.
+      - id: FR-006
+        statement: |
+          For multi-entity users, the system must load all entitled entities.
+      - id: FR-007
+        statement: |
+          For single-workspace users, the system must automatically select the workspace and bypass workspace selection.
+      - id: FR-008
+        statement: |
+          The login experience must support username or email input with input validation.
+      - id: FR-009
+        statement: |
+          When MFA is required by policy, the login experience must collect and verify MFA via a mobile one-time passcode sent to the verified mobile number on file or another approved factor and then proceed through verification.
+      - id: FR-010
+        statement: |
+          The forgot-username flow must deliver the username only via a verified channel after multi-factor identity checks, must use rate limiting and CAPTCHA, and must create an audit trail.
+
+  - area: Workspaces (multi-entity)
+    requirements:
+      - id: FR-011
+        statement: |
+          The system must provide a workspace selector that lists all entitled entities.
+      - id: FR-012
+        statement: |
+          Switching workspaces must force refresh of balances, transactions, and feature flags and must invalidate client caches.
+      - id: FR-013
+        statement: |
+          After switching workspaces, dashboard and accounts views must remain scoped to the selected workspace, including after back navigation.
+      - id: FR-014
+        statement: |
+          Workspace switching UI must follow the ZiFi design system and be keyboard accessible.
+
+  - area: Accounts overview
+    requirements:
+      - id: FR-015
+        statement: |
+          The system must list accounts with account name, masked account number (last 4), account type, current balance, and available balance.
+      - id: FR-016
+        statement: |
+          The system must indicate when an account is not eligible for money movement.
+      - id: FR-017
+        statement: |
+          Closed accounts must be hidden by default and viewable via an explicit option.
+      - id: FR-018
+        statement: |
+          The dashboard must provide summary cards including total available balance and per-account rows with click-through.
+      - id: FR-019
+        statement: |
+          The UI must provide quick actions including Move Money, Statements, Linked Accounts, and Support.
+      - id: FR-020
+        statement: |
+          The application header must show the last login timestamp.
+      - id: FR-021
+        statement: |
+          The left navigation must highlight the active route.
+      - id: FR-022
+        statement: |
+          The application must provide a footer with compliance links.
+
+  - area: Account details & activity
+    requirements:
+      - id: FR-023
+        statement: |
+          The system must show posted and pending transactions with description, amount, status, counterpart, and relevant timestamps.
+      - id: FR-024
+        statement: |
+          Transaction list ordering must be newest-first with stable sorting across transaction types.
+      - id: FR-025
+        statement: |
+          Internal transfers must produce paired ledger entries (debit and credit) in the respective accounts.
+      - id: FR-026
+        statement: |
+          The system must remove warehousing or internal markers from customer-visible transaction descriptions.
+      - id: FR-027
+        statement: |
+          The account details panel must show masked account and routing numbers.
+      - id: FR-028
+        statement: |
+          The account details panel must show interest rate and interest earned when available.
+      - id: FR-029
+        statement: |
+          The account details view must indicate scheduled payments when applicable.
+      - id: FR-030
+        statement: |
+          The transactions table must support search, sort, and pagination.
+      - id: FR-031
+        statement: |
+          The UI must render null or partial transaction fields with placeholders without breaking layout.
+
+  - area: Money movement - internal transfers
+    requirements:
+      - id: FR-032
+        statement: |
+          The system must provide an internal transfer form allowing selection of From account, To account, amount, and optional memo.
+      - id: FR-033
+        statement: |
+          The system must prevent transfers between the same account.
+      - id: FR-034
+        statement: |
+          The system must prevent internal transfers when available funds are insufficient and must not create a transaction on blocked attempts.
+      - id: FR-035
+        statement: |
+          The internal transfer flow must include Form, Review, and Confirmation screens.
+      - id: FR-036
+        statement: |
+          The review screen must show masked details and key notices.
+      - id: FR-037
+        statement: |
+          The confirmation screen must show success status, a reference identifier, and a timestamp.
+      - id: FR-038
+        statement: |
+          The system must apply cutoff rules for internal transfers: submissions after 1:00 PM ET must post the next business day.
+      - id: FR-039
+        statement: |
+          The system must provide a Move Money landing hub with cards for Internal, External, and Send Money, plus links to manage linked accounts.
+      - id: FR-040
+        statement: |
+          The internal transfer UI must support date selection that enforces business-day rules.
+
+  - area: Money movement - ACH (inbound and outbound)
+    requirements:
+      - id: FR-041
+        statement: |
+          The system must support inbound ACH transfers from linked external accounts.
+      - id: FR-042
+        statement: |
+          The system must support outbound ACH transfers to linked external accounts and to ad hoc external accounts.
+      - id: FR-043
+        statement: |
+          The system must validate routing and account numbers and show specific errors for invalid inputs before initiating a core request.
+      - id: FR-044
+        statement: |
+          The system must respect cutoff times and lifecycle states for ACH transfers.
+      - id: FR-045
+        statement: |
+          The system must avoid premature success notifications and must not generate duplicate notifications.
+      - id: FR-046
+        statement: |
+          The system must support external account linking via a Mastercard Finicity Open Finance modal integration with clear success, cancel, and error handling.
+      - id: FR-047
+        statement: |
+          For consumer debit ACH, the system must present Reg E, NACHA, and E-Sign disclosures before submission.
+      - id: FR-048
+        statement: |
+          For consumer debit ACH, the system must capture consent artifacts including timestamp, IP address, and externalAccountId and store auditable records.
+      - id: FR-049
+        statement: |
+          For consumer debit ACH, the system must block submission if consent is not captured.
+      - id: FR-050
+        statement: |
+          The system must bypass ACH Level-3 consent requirements for business accounts.
+
+  - area: Statements & documents
+    requirements:
+      - id: FR-051
+        statement: |
+          The system must list available statement months per account.
+      - id: FR-052
+        statement: |
+          The system must not list statement months that do not exist.
+      - id: FR-053
+        statement: |
+          The system must allow downloading statements as PDFs.
+      - id: FR-054
+        statement: |
+          The system must handle backend errors gracefully for statement listing and downloads.
+      - id: FR-055
+        statement: |
+          The system must treat blank or invalid PDFs as errors.
+
+  - area: Messaging & notifications
+    requirements:
+      - id: FR-056
+        statement: |
+          The system must provide an inbox and thread view for secure messages.
+      - id: FR-057
+        statement: |
+          The system must allow composing messages and tracking read/unread state.
+      - id: FR-058
+        statement: |
+          The compose experience must display a character count or enforce character limits.
+      - id: FR-059
+        statement: |
+          The system must support cross-device draft persistence.
+      - id: FR-060
+        statement: |
+          Message history in a thread must be ordered chronologically.
+      - id: FR-061
+        statement: |
+          Notifications must include deep links, timestamps, and unread badges.
+      - id: FR-062
+        statement: |
+          Notifications must not include message body content or PII.
+      - id: FR-063
+        statement: |
+          Notifications must carry a thread identifier to support deep links.
+      - id: FR-064
+        statement: |
+          The system must support risk alert email templates for operations.
+      - id: FR-065
+        statement: |
+          The system must support mobile push notification configuration and delivery for iOS and Android.
+
+  - area: Profile & security center
+    requirements:
+      - id: FR-066
+        statement: |
+          The system must provide a unified, view-only Profile experience aggregating data from onboarding/core and the identity provider.
+      - id: FR-067
+        statement: |
+          The Profile experience must be entitlement-aware and must adjust visible sections for Authorized Users.
+      - id: FR-068
+        statement: |
+          The Profile experience must link to the Security Center for editing MFA contacts.
+      - id: FR-069
+        statement: |
+          The system must provide a Security Center hub that includes rows for Username, Password, 2-Step Verification, and Trusted Devices.
+      - id: FR-070
+        statement: |
+          The Password row in Security Center must render exactly 16 bullets.
+      - id: FR-071
+        statement: |
+          The 2-Step Verification row must show icons for enabled methods.
+      - id: FR-072
+        statement: |
+          The Trusted Devices row must show a count when the count is greater than zero.
+      - id: FR-073
+        statement: |
+          The Security Center must require a single step-up authentication per session unless identity policy requires another challenge.
+      - id: FR-074
+        statement: |
+          Only applicable rows must be displayed based on entitlement and policy.
+
+  - area: Limits & approvals
+    requirements:
+      - id: FR-075
+        statement: |
+          The system must enforce configurable transaction limits that vary by tenure and standing.
+      - id: FR-076
+        statement: |
+          The system must support a LimitTier catalog that is extensible and includes at minimum New-Tenure, Standard-90+, Elevated, and Restricted tiers.
+      - id: FR-077
+        statement: |
+          The system must support LimitAssignment for subjectType user or account, subjectId, tierId, effective dates, override reason, and assignedBy.
+      - id: FR-078
+        statement: |
+          Tenure defaulting must apply at submission time: under 90 days uses New-Tenure, and 90+ days with good standing uses Standard-90+.
+      - id: FR-079
+        statement: |
+          Banker overrides must take effect immediately and must be auditable.
+      - id: FR-080
+        statement: |
+          Fraud or risk signals must be able to force Restricted tier regardless of tenure until cleared.
+      - id: FR-081
+        statement: |
+          When both a user and an account have assignments, the system must enforce the most restrictive effective thresholds.
+      - id: FR-082
+        statement: |
+          The system must support thresholds including per-transaction max, daily credit/debit max, monthly credit/debit max, optional velocity constraints, and optional Same-Day ACH sub-limits.
+      - id: FR-083
+        statement: |
+          Limits must apply to internal transfers and ACH transfers, including immediate and future-dated transfers.
+      - id: FR-084
+        statement: |
+          Scheduled transfers must be evaluated predictively against projected daily and monthly consumption for the scheduled date.
+      - id: FR-085
+        statement: |
+          The decision outcome must be evaluated at submission time and must attach the applied tier and thresholds to the transfer event for audit.
+      - id: FR-086
+        statement: |
+          When a transaction is blocked, the UI must show a specific user-friendly reason.
+      - id: FR-087
+        statement: |
+          The UI must not expose internal tier names and must use friendly copy.
+
+  - area: Traceability
+    requirements:
+      - id: FR-088
+        statement: |
+          The project must maintain a traceability matrix mapping requirements to source backlog item identifiers for Fizzi Challenger and DRyVE using Fizzi_Challenger_Traceability_Matrix.csv/.xlsx.
