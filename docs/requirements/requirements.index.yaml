@@ -12,6 +12,7 @@ outputs:
   api_contracts: docs/requirements/api_contracts.md
   ui_contracts: docs/requirements/ui_contracts.md
   acceptance_tests: docs/requirements/acceptance_tests.md
+  acceptance_tests_yaml: docs/requirements/acceptance_tests.yaml
   decisions: docs/requirements/decisions.md
   glossary: docs/requirements/glossary.md
   change_log: docs/requirements/change_log.md

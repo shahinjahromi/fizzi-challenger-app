@@ -1,0 +1,85 @@
+schema_version: "1.0"
+type: acceptance_tests
+source_markdown: docs/requirements/acceptance_tests.md
+sections:
+  - area: Authentication & session
+    scenarios:
+      - User can log in with username/password and sees a loading state while authentication is in progress.
+      - Invalid credentials show precise errors without exposing sensitive info.
+      - After completing password reset, the login screen shows no banners and no prefilled username.
+      - On session timeout, re-authentication clears and re-initializes workspace and account caches.
+      - Forgot-username requests are rate-limited, CAPTCHA-protected, audited, and deliver username only via verified channel.
+      - Forgot-password flow sends a reset link to the email address on file, verifies the user's username, allows the user to set a new password, and returns to a clean login screen with no residual banners or prefilled values.
+      - After setting a new password via the forgot-password flow, logging in with the new password succeeds and then prompts the user for MFA before completing authentication when MFA is required by policy.
+
+  - area: Workspaces
+    scenarios:
+      - Workspace selector lists all entitled entities.
+      - Switching workspaces refreshes balances, transactions, and feature flags.
+      - After switching, dashboard and accounts remain scoped to selected workspace across navigation.
+      - Workspace switching is keyboard accessible.
+
+  - area: Accounts overview
+    scenarios:
+      - Accounts list shows name, last-4, type, current and available balances.
+      - Accounts not eligible for money movement are clearly indicated.
+      - Closed accounts are hidden by default and shown only when explicitly enabled.
+      - Dashboard summary cards reflect pending/posted deltas accurately.
+
+  - area: Account details & activity
+    scenarios:
+      - Transaction table shows posted and pending items, newest-first.
+      - Pending debits reduce available balance immediately.
+      - Current balance updates on posting.
+      - Internal transfers create paired debit/credit entries.
+      - Null fields render placeholders without breaking layout.
+
+  - area: Internal transfers
+    scenarios:
+      - Same-account transfers are blocked with an actionable error and no transaction is created.
+      - Insufficient funds blocks submission with an actionable error and no transaction is created.
+      - Submissions after 1:00 PM ET show pending until next business day.
+      - Review screen shows masked details and key notices.
+      - Confirmation screen shows success, reference id, and timestamp.
+
+  - area: ACH
+    scenarios:
+      - Inbound transfer can be initiated from a linked external account.
+      - Outbound transfer can be initiated to a linked or ad hoc external account.
+      - Invalid routing/account inputs show specific errors and prevent requests to core.
+      - Lifecycle notifications are not duplicated.
+      - Consumer debit requires disclosures and consent; without consent, submission is blocked.
+      - External account linking via the Mastercard Finicity Open Finance modal handles success, cancel, and error states with clear and actionable messaging.
+      - Linked external accounts from Mastercard Finicity appear with consistent naming and masking across ACH flows.
+
+  - area: Statements
+    scenarios:
+      - Only available months are listed.
+      - Download returns a valid non-empty PDF.
+      - Backend errors are handled with a user-friendly error state.
+
+  - area: Messaging & notifications
+    scenarios:
+      - Inbox and thread views function end-to-end.
+      - Compose enforces character limits and shows character count.
+      - Drafts persist across devices.
+      - Notifications include deep links, timestamps, and unread badges.
+      - Notifications do not include message body or PII.
+      - New message notifications include thread identifier for deep link.
+
+  - area: Profile & security center
+    scenarios:
+      - Profile is view-only and entitlement-aware.
+      - Security Center requires step-up once per session unless policy requires otherwise.
+      - Password row renders exactly 16 bullets.
+      - 2-step verification icons reflect enabled factors.
+      - Trusted devices count displays only when >0.
+
+  - area: Limits & approvals
+    scenarios:
+      - Tenure defaulting applies: under 90 days uses New-Tenure; 90+ days in good standing uses Standard-90+.
+      - Most restrictive enforcement applies when both user and account assignments exist.
+      - Banker override takes effect immediately for the next submission and is audited.
+      - Fraud downgrade forces Restricted tier regardless of tenure.
+      - Predictive scheduling blocks future-dated transfers that would breach daily/monthly max on scheduled date.
+      - Same-day ACH sub-limit is enforced where configured and provides a friendly breach message.
